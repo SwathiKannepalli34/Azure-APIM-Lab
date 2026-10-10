@@ -17,17 +17,7 @@ See [teardown](docs/TUTORIAL.md#8-teardown-dont-skip-this) — do not leave the 
 
 ## What you'll build
 
-```
-client ──api-key──> APIM (API Management)
-                     │  llm-token-limit        → per-consumer token budget (cost control)
-                     │  llm-emit-token-metric  → chargeback telemetry
-                     │  choose → backend        → route by model name (multi-model routing)
-                     │  managed identity        → keyless to Azure OpenAI
-                     ▼
-        ┌────────────┴───────────────┐
-   region A (primary)           region B (secondary)
-   gpt-4o-mini (pool member)    gpt-4o-mini (pool member)
-```
+![APIM AI Gateway architecture diagram](docs/images/architecture.png)
 
 Full diagram and explanation: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
 

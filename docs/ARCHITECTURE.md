@@ -23,25 +23,10 @@ scale that still proves the pattern.
 
 ## The diagram
 
-```
-                         ┌─────────────────────────────────────────┐
-                         │              APIM  (one hostname)        │
-  client app ──api-key──▶  inbound policy pipeline:                 │
-                         │   1. llm-token-limit        (budget)     │
-                         │   2. llm-emit-token-metric   (telemetry)  │
-                         │   3. choose → backend        (routing)    │
-                         │   4. managed identity         (auth)       │
-                         └───────────────┬───────────────────────────┘
-                                         │
-                      ┌──────────────────┴───────────────────┐
-                 backend: pool                           backend: pinned
-             (round-robin, 2 regions)                 (single region, specialty)
-                      │                                       │
-            ┌─────────┴─────────┐                             │
-      Azure OpenAI          Azure OpenAI                 Azure OpenAI
-      Region A              Region B                     (e.g. a smaller/
-      gpt-4o-mini           gpt-4o-mini                   cheaper model)
-```
+![APIM AI Gateway architecture diagram](images/architecture.png)
+
+The source is a plain SVG at [`images/architecture.svg`](images/architecture.svg)
+if you want to edit it (e.g. relabel regions to match what you actually deployed).
 
 ## The three pillars (and the policy that implements each)
 
