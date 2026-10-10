@@ -1,0 +1,65 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 640" font-family="Segoe UI, Arial, sans-serif">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#0b1d3a"/>
+      <stop offset="100%" stop-color="#0e2a52"/>
+    </linearGradient>
+    <marker id="arrow2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#ffffff" opacity="0.85"/>
+    </marker>
+  </defs>
+
+  <rect width="1280" height="640" fill="url(#bg)"/>
+
+  <!-- subtle accent bar -->
+  <rect x="0" y="0" width="14" height="640" fill="#50b4ff"/>
+
+  <!-- Title -->
+  <text x="70" y="110" font-size="46" font-weight="800" fill="#ffffff">Azure Learning by SK</text>
+  <text x="70" y="150" font-size="22" font-weight="400" fill="#9fc8ff">APIM as an AI Gateway — a hands-on 2-hour lab</text>
+
+  <!-- Mini architecture graphic -->
+  <g transform="translate(70,200)">
+    <rect x="0" y="0" width="160" height="60" rx="8" fill="#16305c" stroke="#50b4ff" stroke-width="2"/>
+    <text x="80" y="35" text-anchor="middle" font-size="15" fill="#e8f3ff">Client app</text>
+
+    <line x1="160" y1="30" x2="215" y2="30" stroke="#ffffff" stroke-width="2" opacity="0.85" marker-end="url(#arrow2)"/>
+
+    <rect x="220" y="-30" width="300" height="120" rx="10" fill="#2a1e05" stroke="#f2b84b" stroke-width="2.5"/>
+    <text x="370" y="0" text-anchor="middle" font-size="16" font-weight="700" fill="#ffd98a">Azure API Management</text>
+    <text x="370" y="22" text-anchor="middle" font-size="12" fill="#f2b84b">token budget · routing · keyless auth</text>
+    <text x="370" y="48" text-anchor="middle" font-size="12" fill="#f2b84b">retry · circuit breaker</text>
+    <text x="370" y="70" text-anchor="middle" font-size="12" fill="#f2b84b">chargeback telemetry</text>
+
+    <line x1="370" y1="90" x2="370" y2="135" stroke="#ffffff" stroke-width="2" opacity="0.85" marker-end="url(#arrow2)"/>
+
+    <rect x="260" y="140" width="220" height="50" rx="8" fill="#0f3322" stroke="#56d68f" stroke-width="2"/>
+    <text x="370" y="170" text-anchor="middle" font-size="14" fill="#bdf2d4">round-robin pool</text>
+
+    <line x1="370" y1="190" x2="370" y2="205" stroke="#ffffff" stroke-width="2" opacity="0.85"/>
+    <line x1="300" y1="205" x2="440" y2="205" stroke="#ffffff" stroke-width="2" opacity="0.85"/>
+    <line x1="300" y1="205" x2="300" y2="220" stroke="#ffffff" stroke-width="2" opacity="0.85" marker-end="url(#arrow2)"/>
+    <line x1="440" y1="205" x2="440" y2="220" stroke="#ffffff" stroke-width="2" opacity="0.85" marker-end="url(#arrow2)"/>
+
+    <rect x="230" y="224" width="140" height="56" rx="8" fill="#16305c" stroke="#50b4ff" stroke-width="2"/>
+    <text x="300" y="248" text-anchor="middle" font-size="12" fill="#e8f3ff">Azure OpenAI</text>
+    <text x="300" y="266" text-anchor="middle" font-size="11" fill="#9fc8ff">Region A</text>
+
+    <rect x="370" y="224" width="140" height="56" rx="8" fill="#16305c" stroke="#50b4ff" stroke-width="2"/>
+    <text x="440" y="248" text-anchor="middle" font-size="12" fill="#e8f3ff">Azure OpenAI</text>
+    <text x="440" y="266" text-anchor="middle" font-size="11" fill="#9fc8ff">Region B</text>
+  </g>
+
+  <!-- Right-side feature list -->
+  <g transform="translate(760,210)">
+    <text x="0" y="0" font-size="16" font-weight="700" fill="#ffffff">What you'll learn</text>
+    <text x="0" y="36" font-size="14" fill="#d8e8ff">✓ Cost control — token budgets enforced pre-spend</text>
+    <text x="0" y="66" font-size="14" fill="#d8e8ff">✓ Resilience — multi-region pooling &amp; failover</text>
+    <text x="0" y="96" font-size="14" fill="#d8e8ff">✓ Multi-model routing — one gateway, many models</text>
+    <text x="0" y="126" font-size="14" fill="#d8e8ff">✓ Keyless auth via managed identity</text>
+  </g>
+
+  <!-- Footer -->
+  <text x="70" y="590" font-size="15" fill="#6f93c4">Step-by-step tutorial · architecture diagram · checkpoints · beginner-friendly</text>
+  <text x="1210" y="590" text-anchor="end" font-size="14" fill="#4a6ea3">github.com/SwathiKannepalli34/Azure-Learning-by-SK</text>
+</svg>
