@@ -1,0 +1,91 @@
+<!--
+  APIM AI Gateway learning lab — inbound policy.
+
+  Three pillars, each isolated below so you can map every tutorial claim
+  back to the exact lines that implement it:
+    1. COST CONTROL    - per-consumer token budget, enforced before spend
+    2. MULTI-MODEL ROUTING - backend chosen by deployment name
+    3. KEYLESS AUTH    - managed identity to Azure OpenAI, no stored keys
+
+  Resilience (pooling, retry, circuit breaker) lives on the backend/pool
+  object itself (see scripts/02-create-backends.ps1), not in this file.
+-->
+<policies>
+  <inbound>
+    <base />
+
+    <set-variable name="consumer" value="@(context.Subscription?.Name ?? "anonymous")" />
+    <set-variable name="deployment" value="@(context.Request.MatchedParameters.ContainsKey("deployment-id") ? context.Request.MatchedParameters["deployment-id"] : "unknown")" />
+
+    <!-- ============ 1. COST CONTROL ============
+         estimate-prompt-tokens rejects an over-budget request BEFORE it is
+         forwarded, so refused calls are never billed. counter-key is the
+         caller's subscription ID, so every consumer gets an independent
+         budget — tune tokens-per-minute per product as needed. -->
+    <llm-token-limit
+        counter-key="@(context.Subscription?.Id ?? "anon")"
+        tokens-per-minute="1000"
+        estimate-prompt-tokens="true"
+        tokens-consumed-header-name="x-tokens-consumed"
+        remaining-tokens-header-name="x-tokens-remaining" />
+
+    <!-- Chargeback telemetry: token counts per consumer/model, visible in
+         Azure Monitor under this custom metric namespace. -->
+    <llm-emit-token-metric namespace="ApimAiGatewayLab">
+      <dimension name="Consumer" value="@((string)context.Variables["consumer"])" />
+      <dimension name="ModelDeployment" value="@((string)context.Variables["deployment"])" />
+      <dimension name="API" value="@(context.Api.Name)" />
+    </llm-emit-token-metric>
+
+    <!-- ============ 2. MULTI-MODEL ROUTING ============
+         Replace the deployment-name prefixes below with whatever models you
+         deployed in the tutorial. The pool you created in Step 4 handles
+         resilience for the primary model; anything else can be pinned to a
+         single backend. -->
+    <choose>
+      <when condition="@(((string)context.Variables["deployment"]).StartsWith("gpt-4o"))">
+        <set-backend-service backend-id="pool-primary" />
+      </when>
+      <otherwise>
+        <set-backend-service backend-id="region-a" />
+      </otherwise>
+    </choose>
+
+    <!-- ============ 3. KEYLESS AUTH ============
+         APIM's system-assigned managed identity authenticates to Azure
+         OpenAI directly. No Azure OpenAI key is stored anywhere — in the
+         client, in a config file, or in APIM itself — and any inbound
+         api-key header is stripped so callers can't bypass the gateway. -->
+    <authentication-managed-identity
+        resource="https://cognitiveservices.azure.com"
+        output-token-variable-name="mi-token" ignore-error="false" />
+    <set-header name="Authorization" exists-action="override">
+      <value>@("Bearer " + (string)context.Variables["mi-token"])</value>
+    </set-header>
+    <set-header name="api-key" exists-action="delete" />
+  </inbound>
+
+  <backend>
+    <!-- Retry pairs with the circuit breaker configured on each backend
+         object (see docs/TUTORIAL.md) so the pool advances to the healthy
+         region automatically. -->
+    <retry condition="@(context.Response.StatusCode == 429 || context.Response.StatusCode >= 500)"
+           count="2" interval="1" first-fast-retry="true">
+      <forward-request buffer-request-body="true" />
+    </retry>
+  </backend>
+
+  <outbound>
+    <base />
+    <set-header name="x-model-deployment" exists-action="override">
+      <value>@((string)context.Variables["deployment"])</value>
+    </set-header>
+  </outbound>
+
+  <on-error>
+    <base />
+    <set-header name="x-gateway-error" exists-action="override">
+      <value>@(context.LastError?.Reason ?? "unknown")</value>
+    </set-header>
+  </on-error>
+</policies>
