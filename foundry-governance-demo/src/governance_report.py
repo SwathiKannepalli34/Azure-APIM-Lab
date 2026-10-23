@@ -14,7 +14,7 @@ def arm(method: str, path: str, api: str, token: str, **kw):
     return r.json()
 
 
-def main() -> None:
+def collect() -> dict:
     sub, rg, name = (common.require(k) for k in
                      ("AZURE_SUBSCRIPTION_ID", "AZURE_RESOURCE_GROUP", "AZURE_AI_ACCOUNT_NAME"))
     token = common.credential().get_token("https://management.azure.com/.default").token
@@ -35,17 +35,35 @@ def main() -> None:
         ("Public network access restricted", props.get("publicNetworkAccess") == "Disabled"),
     ]
 
-    print(f"Account: {name}\n")
-    for label, ok in checks:
-        print(f"  [{'PASS' if ok else 'WARN'}] {label}")
+    summary_root = arm("POST", f"/subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.PolicyInsights/policyStates/latest/summarize",
+                       "2019-10-01", token)["value"][0]
+    summary = summary_root["results"]
+    return {
+        "account": name,
+        "resourceGroup": rg,
+        "checks": [{"label": label, "ok": ok} for label, ok in checks],
+        "policy": {
+            "nonCompliantResources": summary.get("nonCompliantResources", 0),
+            "nonCompliantPolicies": summary.get("nonCompliantPolicies", 0),
+            "assignments": [
+                {"name": a["policyAssignmentId"].split("/")[-1],
+                 "nonCompliantResources": a["results"].get("nonCompliantResources", 0)}
+                for a in summary_root.get("policyAssignments", [])
+            ],
+        },
+    }
 
-    summary = arm("POST", f"/subscriptions/{sub}/resourceGroups/{rg}/providers/Microsoft.PolicyInsights/policyStates/latest/summarize",
-                  "2019-10-01", token)["value"][0]["results"]
-    print(f"\nAzure Policy: {summary.get('nonCompliantResources', 0)} non-compliant resources, "
-          f"{summary.get('nonCompliantPolicies', 0)} non-compliant policies in {rg}")
-    for assignment in summary.get("policyAssignments", []):
-        res = assignment["results"]
-        print(f"  - {assignment['policyAssignmentId'].split('/')[-1]}: {res.get('nonCompliantResources', 0)} non-compliant")
+
+def main() -> None:
+    report = collect()
+    print(f"Account: {report['account']}\n")
+    for c in report["checks"]:
+        print(f"  [{'PASS' if c['ok'] else 'WARN'}] {c['label']}")
+    p = report["policy"]
+    print(f"\nAzure Policy: {p['nonCompliantResources']} non-compliant resources, "
+          f"{p['nonCompliantPolicies']} non-compliant policies in {report['resourceGroup']}")
+    for a in p["assignments"]:
+        print(f"  - {a['name']}: {a['nonCompliantResources']} non-compliant")
 
     print("\nWARN on network access is expected for this demo; policy foundry-demo-restrict-network audits it.")
 

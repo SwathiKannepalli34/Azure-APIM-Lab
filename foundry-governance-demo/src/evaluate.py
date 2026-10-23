@@ -35,12 +35,10 @@ def answer(query: str, context: str) -> dict:
     return {"response": resp.choices[0].message.content or ""}
 
 
-def main() -> None:
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--threshold", type=float, default=3.5, help="Minimum mean score (1-5) per metric.")
-    parser.add_argument("--safety", action="store_true", help="Also run safety evaluators and log to Foundry.")
-    args = parser.parse_args()
+GATED_METRICS = ("relevance.relevance", "coherence.coherence", "groundedness.groundedness")
 
+
+def run_eval(threshold: float = 3.5, safety: bool = False) -> dict:
     cred = common.credential()
     judge = {
         "azure_endpoint": common.require("AZURE_OPENAI_ENDPOINT"),
@@ -53,7 +51,7 @@ def main() -> None:
         "groundedness": GroundednessEvaluator(judge, credential=cred, is_reasoning_model=True),
     }
     kwargs = {}
-    if args.safety:
+    if safety:
         from azure.ai.evaluation import HateUnfairnessEvaluator, ViolenceEvaluator
 
         project = common.require("AZURE_AI_PROJECT_ENDPOINT")
@@ -72,13 +70,26 @@ def main() -> None:
     )
 
     metrics = result["metrics"]
-    print(json.dumps(metrics, indent=2))
-    failed = [
-        k for k in ("relevance.relevance", "coherence.coherence", "groundedness.groundedness")
-        if metrics.get(k, 0) < args.threshold
+    failed = [k for k in GATED_METRICS if metrics.get(k, 0) < threshold]
+    rows = [
+        {"query": r.get("inputs.query"), "response": r.get("outputs.response"),
+         **{m.split(".")[0]: r.get(f"outputs.{m}") for m in GATED_METRICS}}
+        for r in result.get("rows", [])
     ]
-    if failed:
-        print(f"\nQUALITY GATE FAILED (< {args.threshold}): {', '.join(failed)}")
+    return {"metrics": {k: v for k, v in metrics.items() if k.endswith(("_score",)) or k in GATED_METRICS},
+            "threshold": threshold, "failed": failed, "passed": not failed, "rows": rows}
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--threshold", type=float, default=3.5, help="Minimum mean score (1-5) per metric.")
+    parser.add_argument("--safety", action="store_true", help="Also run safety evaluators and log to Foundry.")
+    args = parser.parse_args()
+
+    out = run_eval(args.threshold, args.safety)
+    print(json.dumps(out["metrics"], indent=2))
+    if out["failed"]:
+        print(f"\nQUALITY GATE FAILED (< {args.threshold}): {', '.join(out['failed'])}")
         sys.exit(1)
     print(f"\nQUALITY GATE PASSED (all >= {args.threshold}).")
 

@@ -1,0 +1,147 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Microsoft Foundry demo: observability, guardrails, evaluations, governance</title>
+<style>
+  :root { --bg:#f5f6f8; --card:#fff; --ink:#1b1b1f; --mute:#616170; --line:#dcdde3; --brand:#0f6cbd; --ok:#107c10; --warn:#b45309; --bad:#c50f1f; }
+  * { box-sizing: border-box; }
+  body { margin:0; font:15px/1.5 "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--brand); color:#fff; padding:18px 28px; }
+  header h1 { margin:0; font-size:20px; }
+  header p { margin:2px 0 0; opacity:.9; font-size:13px; }
+  main { max-width:1100px; margin:0 auto; padding:20px; display:grid; gap:18px; }
+  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:18px 20px; }
+  h2 { margin:0 0 4px; font-size:17px; }
+  .sub { color:var(--mute); margin:0 0 12px; font-size:13px; }
+  button { background:var(--brand); color:#fff; border:0; border-radius:4px; padding:8px 16px; font:inherit; cursor:pointer; }
+  button:disabled { background:#9aa0ad; cursor:wait; }
+  textarea { width:100%; min-height:70px; padding:8px; font:inherit; border:1px solid var(--line); border-radius:4px; resize:vertical; }
+  table { width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
+  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
+  th { color:var(--mute); font-weight:600; font-size:12px; text-transform:uppercase; }
+  .pill { display:inline-block; padding:1px 9px; border-radius:10px; font-size:12px; font-weight:600; color:#fff; }
+  .PASS, .ok { background:var(--ok); } .REVIEW, .WARN { background:var(--warn); } .FAIL { background:var(--bad); }
+  .out { margin-top:12px; white-space:pre-wrap; }
+  .meta { color:var(--mute); font-size:13px; margin-top:6px; }
+  .err { color:var(--bad); margin-top:10px; }
+  .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:8px; }
+  label { font-size:13px; color:var(--mute); }
+  .kpis { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
+  .kpi { border:1px solid var(--line); border-radius:6px; padding:8px 14px; min-width:130px; }
+  .kpi b { display:block; font-size:22px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Microsoft Foundry demo</h1>
+  <p>Observability · Guardrails · Evaluations · Governance — <span id="dep">connecting…</span></p>
+</header>
+<main>
+
+<section>
+  <h2>1. Observability: traced chat</h2>
+  <p class="sub">Every call is traced with OpenTelemetry to Application Insights (tokens, latency, spans). Query it with kql/queries.kql.</p>
+  <textarea id="prompt">In two sentences, why trace LLM applications?</textarea>
+  <div class="row"><button id="chatBtn">Send</button></div>
+  <div id="chatOut"></div>
+</section>
+
+<section>
+  <h2>2. Guardrails: red-team prompts</h2>
+  <p class="sub">Benign and adversarial prompts against the custom guardrail. Platform blocks and model refusals are reported separately.</p>
+  <button id="grBtn">Run guardrail tests</button>
+  <div id="grOut"></div>
+</section>
+
+<section>
+  <h2>3. Evaluations: quality gate</h2>
+  <p class="sub">Generates answers for a small dataset and scores relevance, coherence and groundedness with an LLM judge (about 1 minute).</p>
+  <div class="row">
+    <label>Min score <input id="thr" type="number" min="1" max="5" step="0.1" value="3.5" style="width:70px"></label>
+    <label><input id="safety" type="checkbox"> Include safety evaluators (logs to the Foundry project)</label>
+    <button id="evBtn">Run evaluation</button>
+  </div>
+  <div id="evOut"></div>
+</section>
+
+<section>
+  <h2>4. Governance: posture and policy</h2>
+  <p class="sub">Checks the Foundry account configuration and Azure Policy compliance for the resource group.</p>
+  <button id="govBtn">Run governance report</button>
+  <div id="govOut"></div>
+</section>
+
+</main>
+<script>
+const $ = id => document.getElementById(id);
+
+function el(tag, props = {}, ...kids) {
+  const e = Object.assign(document.createElement(tag), props);
+  kids.forEach(k => e.append(k));
+  return e;
+}
+const pill = (text, cls) => el("span", { className: "pill " + cls, textContent: text });
+
+async function call(btn, out, url, body, render) {
+  btn.disabled = true;
+  const label = btn.textContent;
+  btn.textContent = "Running…";
+  out.replaceChildren();
+  try {
+    const r = await fetch(url, body === undefined ? {} : {
+      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || r.statusText);
+    render(data, out);
+  } catch (e) {
+    out.replaceChildren(el("div", { className: "err", textContent: "Error: " + e.message }));
+  } finally {
+    btn.disabled = false;
+    btn.textContent = label;
+  }
+}
+
+function table(headers, rows) {
+  return el("table", {},
+    el("thead", {}, el("tr", {}, ...headers.map(h => el("th", { textContent: h })))),
+    el("tbody", {}, ...rows.map(cells => el("tr", {}, ...cells.map(c => el("td", {}, c))))));
+}
+
+$("chatBtn").onclick = () => call($("chatBtn"), $("chatOut"), "/api/chat", { prompt: $("prompt").value }, (d, out) => {
+  out.append(el("div", { className: "out", textContent: d.answer }),
+    el("div", { className: "meta", textContent: `${d.model} · ${d.seconds}s · ${d.promptTokens} prompt / ${d.completionTokens} completion tokens` }));
+});
+
+$("grBtn").onclick = () => call($("grBtn"), $("grOut"), "/api/guardrails", undefined, (d, out) => {
+  out.append(table(["Case", "Category", "Outcome", "Triggered", "Result"],
+    d.rows.map(r => [r.id, r.category, r.outcome, r.triggered || "–", pill(r.result, r.result)])));
+});
+
+$("evBtn").onclick = () => call($("evBtn"), $("evOut"), "/api/evaluate",
+  { threshold: parseFloat($("thr").value), safety: $("safety").checked }, (d, out) => {
+    const kpis = el("div", { className: "kpis" });
+    Object.entries(d.metrics).filter(([k]) => !k.endsWith("_score") || k.includes("violence") || k.includes("hate"))
+      .forEach(([k, v]) => kpis.append(el("div", { className: "kpi" }, el("b", { textContent: Number(v).toFixed(1) }), k.replace(".", " · "))));
+    out.append(el("div", { className: "row" },
+      pill(d.passed ? "QUALITY GATE PASSED" : "QUALITY GATE FAILED", d.passed ? "PASS" : "FAIL"),
+      el("span", { className: "meta", textContent: d.passed ? `all ≥ ${d.threshold}` : `below ${d.threshold}: ${d.failed.join(", ")}` })),
+      kpis,
+      table(["Question", "Answer", "Rel.", "Coh.", "Grd."],
+        d.rows.map(r => [r.query, r.response, r.relevance, r.coherence, r.groundedness])));
+  });
+
+$("govBtn").onclick = () => call($("govBtn"), $("govOut"), "/api/governance", undefined, (d, out) => {
+  out.append(table(["Check", "Status"], d.checks.map(c => [c.label, pill(c.ok ? "PASS" : "WARN", c.ok ? "PASS" : "WARN")])));
+  const p = d.policy;
+  out.append(el("div", { className: "meta", textContent:
+    `Azure Policy in ${d.resourceGroup}: ${p.nonCompliantResources} non-compliant resources, ${p.nonCompliantPolicies} non-compliant policies` }),
+    table(["Policy assignment", "Non-compliant resources"], p.assignments.map(a => [a.name, String(a.nonCompliantResources)])));
+});
+
+fetch("/api/config").then(r => r.json()).then(c => $("dep").textContent = "model: " + c.deployment)
+  .catch(() => $("dep").textContent = "server not configured");
+</script>
+</body>
+</html>

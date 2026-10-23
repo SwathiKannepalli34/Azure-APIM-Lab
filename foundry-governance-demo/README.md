@@ -15,7 +15,17 @@ A reusable, parameterized demo you can deploy into any Azure subscription. No ke
 - Contributor and User Access Administrator (or Owner) on the target subscription
 - Quota for the model in your region (default: `gpt-5-mini`, GlobalStandard, 30K TPM). Check availability with `az cognitiveservices model list -l <region>`; models are retired regularly, so change `modelName`/`modelVersion` in [infra/main.bicep](infra/main.bicep) if needed.
 
-## Run it
+## Live demo (browser)
+
+After deploying (see below), start the browser demo:
+```powershell
+cd src
+python app.py          # then open http://127.0.0.1:8000
+```
+
+[src/static/index.html](src/static/index.html) is the page; [src/app.py](src/app.py) is a small local server that runs the four demos with your own `az login` identity. It binds to localhost only and rejects other hosts/origins because the endpoints spend model tokens.
+
+## Run it from the terminal (includes deployment)
 
 ```powershell
 az login --tenant <your-tenant>
