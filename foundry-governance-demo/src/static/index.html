@@ -3,145 +3,392 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Microsoft Foundry demo: observability, guardrails, evaluations, governance</title>
+<title>Microsoft Foundry demo · Observability, Guardrails, Evaluations, Governance</title>
 <style>
-  :root { --bg:#f5f6f8; --card:#fff; --ink:#1b1b1f; --mute:#616170; --line:#dcdde3; --brand:#0f6cbd; --ok:#107c10; --warn:#b45309; --bad:#c50f1f; }
-  * { box-sizing: border-box; }
-  body { margin:0; font:15px/1.5 "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
-  header { background:var(--brand); color:#fff; padding:18px 28px; }
-  header h1 { margin:0; font-size:20px; }
-  header p { margin:2px 0 0; opacity:.9; font-size:13px; }
-  main { max-width:1100px; margin:0 auto; padding:20px; display:grid; gap:18px; }
-  section { background:var(--card); border:1px solid var(--line); border-radius:8px; padding:18px 20px; }
-  h2 { margin:0 0 4px; font-size:17px; }
-  .sub { color:var(--mute); margin:0 0 12px; font-size:13px; }
-  button { background:var(--brand); color:#fff; border:0; border-radius:4px; padding:8px 16px; font:inherit; cursor:pointer; }
-  button:disabled { background:#9aa0ad; cursor:wait; }
-  textarea { width:100%; min-height:70px; padding:8px; font:inherit; border:1px solid var(--line); border-radius:4px; resize:vertical; }
-  table { width:100%; border-collapse:collapse; margin-top:12px; font-size:14px; }
-  th, td { text-align:left; padding:7px 8px; border-bottom:1px solid var(--line); vertical-align:top; }
-  th { color:var(--mute); font-weight:600; font-size:12px; text-transform:uppercase; }
-  .pill { display:inline-block; padding:1px 9px; border-radius:10px; font-size:12px; font-weight:600; color:#fff; }
-  .PASS, .ok { background:var(--ok); } .REVIEW, .WARN { background:var(--warn); } .FAIL { background:var(--bad); }
-  .out { margin-top:12px; white-space:pre-wrap; }
-  .meta { color:var(--mute); font-size:13px; margin-top:6px; }
-  .err { color:var(--bad); margin-top:10px; }
-  .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-top:8px; }
-  label { font-size:13px; color:var(--mute); }
-  .kpis { display:flex; gap:12px; flex-wrap:wrap; margin-top:12px; }
-  .kpi { border:1px solid var(--line); border-radius:6px; padding:8px 14px; min-width:130px; }
-  .kpi b { display:block; font-size:22px; }
+  :root {
+    --bg:#f3f5fb; --surface:#ffffff; --surface2:#f7f8fc; --ink:#14162b; --mute:#5d6280; --line:#e3e6f1;
+    --shadow:0 1px 2px rgba(20,22,43,.06), 0 8px 24px rgba(20,22,43,.07);
+    --obs:#1677ff; --grd:#7c3aed; --evl:#0d9488; --gov:#d97706;
+    --ok:#12805c; --okbg:#e3f6ee; --warn:#b45309; --warnbg:#fff1dc; --bad:#c42b3a; --badbg:#fde8ea; --info:#3a4bd8; --infobg:#e8ebff;
+    --accent:var(--obs);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg:#0d0f1e; --surface:#171a2e; --surface2:#1d2138; --ink:#eceefb; --mute:#98a0c4; --line:#2b3050;
+      --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.35);
+      --okbg:#0f3a2c; --ok:#5fdca9; --warnbg:#41300f; --warn:#f2b45c; --badbg:#451a20; --bad:#ff8a95; --infobg:#222a66; --info:#a5b0ff;
+    }
+  }
+  * { box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body { margin:0; background:var(--bg); color:var(--ink); font:15px/1.55 "Segoe UI Variable", "Segoe UI", system-ui, sans-serif; }
+
+  /* Hero */
+  .hero { position:relative; overflow:hidden; color:#fff; padding:44px 24px 96px;
+    background: radial-gradient(900px 400px at 85% -10%, rgba(124,58,237,.65), transparent 60%),
+                radial-gradient(700px 380px at 5% 110%, rgba(13,148,136,.55), transparent 60%),
+                linear-gradient(135deg,#0b1b4d 0%,#12307f 55%,#1b4bc4 100%); }
+  .hero::after { content:""; position:absolute; inset:0; opacity:.07;
+    background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px); background-size:38px 38px; }
+  .hero-inner { position:relative; z-index:1; max-width:1100px; margin:0 auto; }
+  .eyebrow { display:inline-flex; align-items:center; gap:8px; font-size:12px; letter-spacing:.14em; text-transform:uppercase; opacity:.85; }
+  .logo { display:grid; grid-template-columns:repeat(2,9px); gap:2px; }
+  .logo i { width:9px; height:9px; display:block; }
+  .logo i:nth-child(1){background:#f25022}.logo i:nth-child(2){background:#7fba00}.logo i:nth-child(3){background:#00a4ef}.logo i:nth-child(4){background:#ffb900}
+  h1 { margin:10px 0 8px; font-size:clamp(26px,4vw,40px); line-height:1.15; font-weight:700; letter-spacing:-.02em; }
+  .hero p { margin:0; max-width:640px; font-size:16px; opacity:.88; }
+  .chips { display:flex; flex-wrap:wrap; gap:8px; margin-top:20px; }
+  .chip { display:inline-flex; align-items:center; gap:7px; padding:5px 12px; border-radius:999px; font-size:13px;
+    background:rgba(255,255,255,.14); border:1px solid rgba(255,255,255,.22); backdrop-filter:blur(6px); }
+  .dot { width:8px; height:8px; border-radius:50%; background:#9aa3c7; }
+  .dot.live { background:#46e3a0; box-shadow:0 0 0 4px rgba(70,227,160,.25); }
+  .dot.off { background:#ff7a85; }
+
+  main { max-width:1100px; margin:-64px auto 48px; padding:0 20px; position:relative; z-index:2; }
+
+  /* Pillar selector */
+  .pillars { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:14px; }
+  .pillar { text-align:left; background:var(--surface); border:1px solid var(--line); border-radius:14px; padding:16px; cursor:pointer;
+    box-shadow:var(--shadow); color:inherit; font:inherit; position:relative; transition:transform .15s, border-color .15s; }
+  .pillar:hover { transform:translateY(-2px); }
+  .pillar .ico { width:40px; height:40px; border-radius:11px; display:grid; place-items:center; color:#fff; margin-bottom:10px; background:var(--c); }
+  .pillar .ico svg { width:22px; height:22px; }
+  .pillar b { display:block; font-size:15px; }
+  .pillar span { color:var(--mute); font-size:13px; }
+  .pillar[aria-selected="true"] { border-color:var(--c); box-shadow:0 0 0 2px var(--c), var(--shadow); }
+  .pillar[aria-selected="true"]::after { content:""; position:absolute; left:50%; bottom:-9px; width:16px; height:16px; background:var(--surface);
+    border-right:2px solid var(--c); border-bottom:2px solid var(--c); transform:translateX(-50%) rotate(45deg); }
+
+  /* Panel */
+  .panel { margin-top:24px; background:var(--surface); border:1px solid var(--line); border-radius:16px; box-shadow:var(--shadow); overflow:hidden; }
+  .panel-head { padding:22px 26px 18px; border-bottom:1px solid var(--line); border-top:4px solid var(--accent);
+    display:flex; gap:16px; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; }
+  .panel-head h2 { margin:0; font-size:20px; letter-spacing:-.01em; }
+  .panel-head p { margin:4px 0 0; color:var(--mute); max-width:640px; font-size:14px; }
+  .panel-body { padding:22px 26px 26px; }
+  [hidden] { display:none !important; }
+
+  button.primary { background:var(--accent); color:#fff; border:0; border-radius:10px; padding:10px 20px; font:inherit; font-weight:600; cursor:pointer;
+    display:inline-flex; align-items:center; gap:8px; transition:filter .15s, transform .1s; }
+  button.primary:hover:not(:disabled) { filter:brightness(1.08); }
+  button.primary:active:not(:disabled) { transform:scale(.98); }
+  button.primary:disabled { opacity:.7; cursor:progress; }
+  .spinner { width:14px; height:14px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin { to { transform:rotate(360deg); } }
+
+  /* Chat */
+  .thread { display:flex; flex-direction:column; gap:14px; min-height:120px; max-height:420px; overflow:auto; padding:4px 2px 12px; }
+  .empty { color:var(--mute); text-align:center; padding:28px 12px; border:1.5px dashed var(--line); border-radius:12px; }
+  .msg { max-width:82%; padding:11px 15px; border-radius:16px; white-space:pre-wrap; word-wrap:break-word; }
+  .msg.user { align-self:flex-end; background:var(--accent); color:#fff; border-bottom-right-radius:4px; }
+  .msg.bot { align-self:flex-start; background:var(--surface2); border:1px solid var(--line); border-bottom-left-radius:4px; }
+  .msg.err { align-self:flex-start; background:var(--badbg); color:var(--bad); border:1px solid var(--bad); }
+  .meta { display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .tag { font-size:12px; padding:2px 9px; border-radius:999px; background:var(--infobg); color:var(--info); font-weight:600; }
+  .composer { display:flex; gap:10px; margin-top:12px; align-items:flex-end; }
+  .composer textarea { flex:1; min-height:52px; max-height:140px; resize:vertical; padding:12px 14px; font:inherit; color:var(--ink);
+    background:var(--surface2); border:1.5px solid var(--line); border-radius:12px; outline:none; }
+  .composer textarea:focus { border-color:var(--accent); }
+  .suggest { display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .suggest button { background:var(--surface2); border:1px solid var(--line); color:var(--ink); border-radius:999px; padding:5px 12px; font:inherit; font-size:13px; cursor:pointer; }
+  .suggest button:hover { border-color:var(--accent); color:var(--accent); }
+  .hint { color:var(--mute); font-size:12px; margin-top:8px; }
+  .typing { display:inline-flex; gap:4px; } .typing i { width:7px; height:7px; border-radius:50%; background:var(--mute); animation:blink 1.2s infinite; }
+  .typing i:nth-child(2){animation-delay:.2s}.typing i:nth-child(3){animation-delay:.4s}
+  @keyframes blink { 0%,80%,100%{opacity:.25} 40%{opacity:1} }
+
+  /* Results */
+  .banner { display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:12px; margin-bottom:16px; font-weight:600; }
+  .banner small { display:block; font-weight:400; opacity:.85; }
+  .banner.ok { background:var(--okbg); color:var(--ok); } .banner.warn { background:var(--warnbg); color:var(--warn); } .banner.bad { background:var(--badbg); color:var(--bad); }
+  .banner svg { width:26px; height:26px; flex:none; }
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+  .card { border:1px solid var(--line); border-radius:12px; padding:14px 16px; background:var(--surface2); }
+  .card .top { display:flex; justify-content:space-between; align-items:center; gap:8px; margin-bottom:8px; }
+  .cat { font-size:11px; text-transform:uppercase; letter-spacing:.08em; font-weight:700; color:var(--mute); }
+  .quote { color:var(--mute); font-size:13.5px; font-style:italic; margin:0 0 10px; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .outcome { display:flex; align-items:center; gap:8px; font-weight:600; }
+  .outcome small { font-weight:400; color:var(--mute); }
+  .pill { display:inline-flex; align-items:center; gap:5px; padding:2px 10px; border-radius:999px; font-size:12px; font-weight:700; }
+  .pill.ok { background:var(--okbg); color:var(--ok); } .pill.warn { background:var(--warnbg); color:var(--warn); } .pill.bad { background:var(--badbg); color:var(--bad); }
+  .pill.info { background:var(--infobg); color:var(--info); }
+
+  .rings { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:20px; }
+  .ring-card { text-align:center; border:1px solid var(--line); background:var(--surface2); border-radius:12px; padding:16px 10px; }
+  .ring { --p:0; --c:var(--evl); width:92px; height:92px; margin:0 auto 8px; border-radius:50%; display:grid; place-items:center;
+    background:conic-gradient(var(--c) calc(var(--p)*1%), var(--line) 0); }
+  .ring.low { --c:var(--bad); }
+  .ring span { width:72px; height:72px; border-radius:50%; background:var(--surface2); display:grid; place-items:center; font-size:22px; font-weight:700; }
+  .ring-card small { color:var(--mute); }
+  details { border:1px solid var(--line); border-radius:12px; background:var(--surface2); }
+  details + details { margin-top:8px; }
+  summary { cursor:pointer; padding:11px 14px; font-weight:600; display:flex; justify-content:space-between; gap:10px; align-items:center; }
+  details .inner { padding:0 14px 14px; color:var(--mute); font-size:14px; white-space:pre-wrap; }
+  .scores { display:flex; gap:6px; flex-shrink:0; }
+
+  .checklist { display:grid; gap:8px; }
+  .check { display:flex; align-items:center; gap:12px; padding:11px 14px; border:1px solid var(--line); border-radius:12px; background:var(--surface2); }
+  .check .ci { width:28px; height:28px; border-radius:50%; display:grid; place-items:center; flex:none; }
+  .check .ci svg { width:16px; height:16px; }
+  .check.ok .ci { background:var(--okbg); color:var(--ok); } .check.warn .ci { background:var(--warnbg); color:var(--warn); }
+  .check span:nth-child(2) { flex:1; }
+  .kpis { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; margin-bottom:18px; }
+  .kpi { border:1px solid var(--line); border-radius:12px; padding:12px 16px; background:var(--surface2); }
+  .kpi b { display:block; font-size:26px; letter-spacing:-.02em; } .kpi small { color:var(--mute); }
+  h3 { margin:22px 0 10px; font-size:14px; text-transform:uppercase; letter-spacing:.08em; color:var(--mute); }
+  .policy { display:flex; justify-content:space-between; align-items:center; gap:10px; padding:9px 4px; border-bottom:1px solid var(--line); font-size:14px; }
+  .policy code { font-family:Consolas, monospace; font-size:13px; }
+  .tools { display:flex; gap:16px; align-items:center; flex-wrap:wrap; }
+  .tools label { display:flex; align-items:center; gap:8px; color:var(--mute); font-size:14px; }
+  .tools input[type=number] { width:70px; padding:6px 8px; border-radius:8px; border:1.5px solid var(--line); background:var(--surface2); color:var(--ink); font:inherit; }
+  .running { display:flex; align-items:center; gap:12px; padding:18px; color:var(--mute); }
+  .running .spinner { border-color:var(--line); border-top-color:var(--accent); width:20px; height:20px; }
+  .skeleton { height:92px; border-radius:12px; background:linear-gradient(90deg,var(--surface2),var(--line),var(--surface2)); background-size:200% 100%; animation:shimmer 1.4s infinite; }
+  @keyframes shimmer { to { background-position:-200% 0; } }
+  footer { text-align:center; color:var(--mute); font-size:12.5px; padding-bottom:32px; }
+  .result { margin-top:20px; }
+  @media (max-width:560px) { .hero { padding:32px 16px 88px; } .panel-body, .panel-head { padding-left:16px; padding-right:16px; } .msg { max-width:94%; } }
 </style>
 </head>
 <body>
-<header>
-  <h1>Microsoft Foundry demo</h1>
-  <p>Observability · Guardrails · Evaluations · Governance — <span id="dep">connecting…</span></p>
-</header>
-<main>
 
-<section>
-  <h2>1. Observability: traced chat</h2>
-  <p class="sub">Every call is traced with OpenTelemetry to Application Insights (tokens, latency, spans). Query it with kql/queries.kql.</p>
-  <textarea id="prompt">In two sentences, why trace LLM applications?</textarea>
-  <div class="row"><button id="chatBtn">Send</button></div>
-  <div id="chatOut"></div>
-</section>
-
-<section>
-  <h2>2. Guardrails: red-team prompts</h2>
-  <p class="sub">Benign and adversarial prompts against the custom guardrail. Platform blocks and model refusals are reported separately.</p>
-  <button id="grBtn">Run guardrail tests</button>
-  <div id="grOut"></div>
-</section>
-
-<section>
-  <h2>3. Evaluations: quality gate</h2>
-  <p class="sub">Generates answers for a small dataset and scores relevance, coherence and groundedness with an LLM judge (about 1 minute).</p>
-  <div class="row">
-    <label>Min score <input id="thr" type="number" min="1" max="5" step="0.1" value="3.5" style="width:70px"></label>
-    <label><input id="safety" type="checkbox"> Include safety evaluators (logs to the Foundry project)</label>
-    <button id="evBtn">Run evaluation</button>
+<header class="hero">
+  <div class="hero-inner">
+    <div class="eyebrow"><span class="logo"><i></i><i></i><i></i><i></i></span> Microsoft Foundry · Live demo</div>
+    <h1>Build AI you can trust, see, and govern</h1>
+    <p>Trace every model call, block unsafe content, measure quality before you ship, and prove your deployment follows policy.</p>
+    <div class="chips">
+      <span class="chip"><span class="dot" id="statusDot"></span><span id="statusText">Connecting…</span></span>
+      <span class="chip" id="modelChip" hidden>Model: <b id="modelName"></b></span>
+      <span class="chip">Entra ID only · no API keys</span>
+    </div>
   </div>
-  <div id="evOut"></div>
-</section>
+</header>
 
-<section>
-  <h2>4. Governance: posture and policy</h2>
-  <p class="sub">Checks the Foundry account configuration and Azure Policy compliance for the resource group.</p>
-  <button id="govBtn">Run governance report</button>
-  <div id="govOut"></div>
-</section>
-
+<main>
+  <div class="pillars" role="tablist" aria-label="Demo areas" id="pillars"></div>
+  <div id="panels"></div>
 </main>
+<footer>Runs locally against your own Azure sign-in. Results are not stored.</footer>
+
 <script>
-const $ = id => document.getElementById(id);
+const $ = (s, r = document) => r.querySelector(s);
+
+const ICONS = {
+  obs: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>',
+  grd: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/></svg>',
+  evl: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  gov: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 10l9-6 9 6M5 10v8M9.5 10v8M14.5 10v8M19 10v8M3 20h18"/></svg>',
+  ok: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>',
+  warn: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M12 7v6M12 17v.01"/></svg>',
+  bad: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M6 6l12 12M18 6L6 18"/></svg>',
+};
+// Icon strings above are constants, never built from data.
+const icon = k => { const s = document.createElement("span"); s.innerHTML = ICONS[k]; return s.firstChild; };
 
 function el(tag, props = {}, ...kids) {
   const e = Object.assign(document.createElement(tag), props);
-  kids.forEach(k => e.append(k));
+  kids.filter(k => k != null).forEach(k => e.append(k));
   return e;
 }
 const pill = (text, cls) => el("span", { className: "pill " + cls, textContent: text });
 
-async function call(btn, out, url, body, render) {
-  btn.disabled = true;
-  const label = btn.textContent;
-  btn.textContent = "Running…";
-  out.replaceChildren();
-  try {
-    const r = await fetch(url, body === undefined ? {} : {
-      method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || r.statusText);
-    render(data, out);
-  } catch (e) {
-    out.replaceChildren(el("div", { className: "err", textContent: "Error: " + e.message }));
-  } finally {
-    btn.disabled = false;
-    btn.textContent = label;
-  }
+const PILLARS = [
+  { id: "obs", color: "var(--obs)", title: "Observability", blurb: "Trace every call", head: "Traced chat",
+    desc: "Chat with the deployed model. Each call is traced with OpenTelemetry to Application Insights: prompts, tokens, latency." },
+  { id: "grd", color: "var(--grd)", title: "Guardrails", blurb: "Block unsafe content", head: "Red-team the guardrail",
+    desc: "Send benign and adversarial prompts. See whether the platform blocked them or the model refused on its own." },
+  { id: "evl", color: "var(--evl)", title: "Evaluations", blurb: "Gate on quality", head: "Quality gate",
+    desc: "Generate answers for a small dataset and score relevance, coherence and groundedness with an LLM judge." },
+  { id: "gov", color: "var(--gov)", title: "Governance", blurb: "Prove compliance", head: "Posture and policy",
+    desc: "Check the account configuration and Azure Policy compliance for the resource group." },
+];
+
+const state = { running: new Set() };
+
+async function api(url, body) {
+  const r = await fetch(url, body === undefined ? {} : { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  const data = await r.json();
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
 }
 
-function table(headers, rows) {
-  return el("table", {},
-    el("thead", {}, el("tr", {}, ...headers.map(h => el("th", { textContent: h })))),
-    el("tbody", {}, ...rows.map(cells => el("tr", {}, ...cells.map(c => el("td", {}, c))))));
+function setBusy(btn, busy, label) {
+  btn.disabled = busy;
+  btn.replaceChildren(...(busy ? [el("span", { className: "spinner" }), "Running…"] : [label]));
 }
 
-$("chatBtn").onclick = () => call($("chatBtn"), $("chatOut"), "/api/chat", { prompt: $("prompt").value }, (d, out) => {
-  out.append(el("div", { className: "out", textContent: d.answer }),
-    el("div", { className: "meta", textContent: `${d.model} · ${d.seconds}s · ${d.promptTokens} prompt / ${d.completionTokens} completion tokens` }));
-});
+function banner(kind, title, sub) {
+  return el("div", { className: "banner " + kind }, icon(kind === "ok" ? "ok" : kind === "warn" ? "warn" : "bad"),
+    el("div", {}, title, el("small", { textContent: sub })));
+}
 
-$("grBtn").onclick = () => call($("grBtn"), $("grOut"), "/api/guardrails", undefined, (d, out) => {
-  out.append(table(["Case", "Category", "Outcome", "Triggered", "Result"],
-    d.rows.map(r => [r.id, r.category, r.outcome, r.triggered || "–", pill(r.result, r.result)])));
-});
+function loading(text) {
+  return el("div", { className: "running" }, el("span", { className: "spinner" }), text);
+}
 
-$("evBtn").onclick = () => call($("evBtn"), $("evOut"), "/api/evaluate",
-  { threshold: parseFloat($("thr").value), safety: $("safety").checked }, (d, out) => {
-    const kpis = el("div", { className: "kpis" });
-    Object.entries(d.metrics).filter(([k]) => !k.endsWith("_score") || k.includes("violence") || k.includes("hate"))
-      .forEach(([k, v]) => kpis.append(el("div", { className: "kpi" }, el("b", { textContent: Number(v).toFixed(1) }), k.replace(".", " · "))));
-    out.append(el("div", { className: "row" },
-      pill(d.passed ? "QUALITY GATE PASSED" : "QUALITY GATE FAILED", d.passed ? "PASS" : "FAIL"),
-      el("span", { className: "meta", textContent: d.passed ? `all ≥ ${d.threshold}` : `below ${d.threshold}: ${d.failed.join(", ")}` })),
-      kpis,
-      table(["Question", "Answer", "Rel.", "Coh.", "Grd."],
-        d.rows.map(r => [r.query, r.response, r.relevance, r.coherence, r.groundedness])));
+async function runInto(btn, label, out, pendingText, fn) {
+  setBusy(btn, true, label);
+  out.replaceChildren(loading(pendingText));
+  try { out.replaceChildren(await fn()); }
+  catch (e) { out.replaceChildren(banner("bad", "Something went wrong", e.message)); }
+  finally { setBusy(btn, false, label); }
+}
+
+/* ---------- Panels ---------- */
+function buildChat(body) {
+  const thread = el("div", { className: "thread" }, el("div", { className: "empty", textContent: "Ask anything. Each reply shows latency and token usage." }));
+  const ta = el("textarea", { placeholder: "Ask the model something…", value: "In two sentences, why trace LLM applications?" });
+  const send = el("button", { className: "primary" }, "Send");
+  const sendLabel = "Send";
+
+  const submit = async () => {
+    const prompt = ta.value.trim();
+    if (!prompt || send.disabled) return;
+    thread.querySelector(".empty")?.remove();
+    thread.append(el("div", { className: "msg user", textContent: prompt }));
+    const pending = el("div", { className: "msg bot" }, el("span", { className: "typing" }, el("i"), el("i"), el("i")));
+    thread.append(pending);
+    thread.scrollTop = thread.scrollHeight;
+    ta.value = "";
+    setBusy(send, true, sendLabel);
+    try {
+      const d = await api("/api/chat", { prompt });
+      pending.replaceChildren(d.answer || "(empty response)",
+        el("div", { className: "meta" }, el("span", { className: "tag", textContent: d.model }),
+          el("span", { className: "tag", textContent: d.seconds + " s" }),
+          el("span", { className: "tag", textContent: `${d.promptTokens} in · ${d.completionTokens} out tokens` })));
+    } catch (e) {
+      pending.className = "msg err"; pending.textContent = "Error: " + e.message;
+    } finally { setBusy(send, false, sendLabel); thread.scrollTop = thread.scrollHeight; }
+  };
+  send.onclick = submit;
+  ta.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); submit(); } });
+
+  const suggestions = ["What does Azure Policy do?", "Explain guardrails vs evaluations", "List 3 ways to cut LLM latency"];
+  body.append(thread,
+    el("div", { className: "composer" }, ta, send),
+    el("div", { className: "suggest" }, ...suggestions.map(s => el("button", { textContent: s, onclick: () => { ta.value = s; ta.focus(); } }))),
+    el("div", { className: "hint", textContent: "Enter to send · Shift+Enter for a new line. Traces appear in Application Insights within a few minutes." }));
+}
+
+function buildGuardrails(body) {
+  const out = el("div", { className: "result" });
+  const btn = el("button", { className: "primary" }, "Run guardrail tests");
+  const label = "Run guardrail tests";
+  btn.onclick = () => runInto(btn, label, out, "Sending 6 prompts in parallel…", async () => {
+    const { rows } = await api("/api/guardrails");
+    const pass = rows.filter(r => r.result === "PASS").length;
+    const all = pass === rows.length;
+    const wrap = el("div", {}, banner(all ? "ok" : "warn", `${pass} of ${rows.length} behaved as expected`,
+      all ? "Unsafe prompts were stopped and benign ones went through." : "Review the highlighted cases and tune the guardrail."));
+    const kind = o => o.startsWith("blocked") ? ["bad", "Blocked by guardrail"] : o.startsWith("refused") ? ["warn", "Refused by the model"] : ["ok", "Allowed"];
+    wrap.append(el("div", { className: "grid" }, ...rows.map(r => {
+      const [k, text] = kind(r.outcome);
+      return el("div", { className: "card" },
+        el("div", { className: "top" }, el("span", { className: "cat", textContent: r.category }), pill(r.result === "PASS" ? "As expected" : "Review", r.result === "PASS" ? "ok" : "warn")),
+        el("p", { className: "quote", textContent: "“" + r.prompt + "”" }),
+        el("div", { className: "outcome" }, pill(text, k), r.triggered ? el("small", { textContent: r.triggered }) : null));
+    })));
+    return wrap;
   });
+  body.append(el("div", { className: "tools" }, btn), out);
+}
 
-$("govBtn").onclick = () => call($("govBtn"), $("govOut"), "/api/governance", undefined, (d, out) => {
-  out.append(table(["Check", "Status"], d.checks.map(c => [c.label, pill(c.ok ? "PASS" : "WARN", c.ok ? "PASS" : "WARN")])));
-  const p = d.policy;
-  out.append(el("div", { className: "meta", textContent:
-    `Azure Policy in ${d.resourceGroup}: ${p.nonCompliantResources} non-compliant resources, ${p.nonCompliantPolicies} non-compliant policies` }),
-    table(["Policy assignment", "Non-compliant resources"], p.assignments.map(a => [a.name, String(a.nonCompliantResources)])));
+function buildEval(body) {
+  const out = el("div", { className: "result" });
+  const thr = el("input", { type: "number", min: 1, max: 5, step: 0.1, value: 3.5 });
+  const safety = el("input", { type: "checkbox" });
+  const btn = el("button", { className: "primary" }, "Run evaluation");
+  const label = "Run evaluation";
+  btn.onclick = () => runInto(btn, label, out, "Generating answers and judging them… about a minute.", async () => {
+    const d = await api("/api/evaluate", { threshold: parseFloat(thr.value), safety: safety.checked });
+    const wrap = el("div", {}, d.passed
+      ? banner("ok", "Quality gate passed", `Every metric is at or above ${d.threshold}.`)
+      : banner("bad", "Quality gate failed", `Below ${d.threshold}: ${d.failed.join(", ")}`));
+    const names = { "relevance.relevance": "Relevance", "coherence.coherence": "Coherence", "groundedness.groundedness": "Groundedness" };
+    const rings = el("div", { className: "rings" });
+    for (const [k, name] of Object.entries(names)) {
+      const v = d.metrics[k] ?? 0;
+      const ring = el("div", { className: "ring" + (v < d.threshold ? " low" : "") }, el("span", { textContent: v.toFixed(1) }));
+      ring.style.setProperty("--p", Math.min(100, (v / 5) * 100));
+      rings.append(el("div", { className: "ring-card" }, ring, el("b", { textContent: name }), el("br"), el("small", { textContent: "out of 5" })));
+    }
+    for (const k of Object.keys(d.metrics).filter(k => /^(violence|hate_unfairness)\./.test(k) && k.endsWith("_score"))) {
+      const v = d.metrics[k];
+      const ring = el("div", { className: "ring" + (v >= 3 ? " low" : "") }, el("span", { textContent: v.toFixed(1) }));
+      ring.style.setProperty("--p", Math.max(4, (v / 7) * 100));
+      rings.append(el("div", { className: "ring-card" }, ring, el("b", { textContent: k.split(".")[0].replace("_", " ").replace(/^./, c => c.toUpperCase()) }), el("br"), el("small", { textContent: "safety severity, 0 is best" })));
+    }
+    wrap.append(rings, el("h3", { textContent: "Per-question results" }));
+    d.rows.forEach(r => wrap.append(el("details", {},
+      el("summary", {}, el("span", { textContent: r.query }),
+        el("span", { className: "scores" }, ...["relevance", "coherence", "groundedness"].map(m =>
+          el("span", { className: "pill " + (r[m] >= d.threshold ? "ok" : "bad"), textContent: m.slice(0, 3).toUpperCase() + " " + r[m], title: m })))),
+      el("div", { className: "inner", textContent: r.response }))));
+    return wrap;
+  });
+  body.append(el("div", { className: "tools" },
+    el("label", {}, "Minimum score", thr), el("label", {}, safety, "Include safety evaluators"), btn), out);
+}
+
+function buildGov(body) {
+  const out = el("div", { className: "result" });
+  const btn = el("button", { className: "primary" }, "Run governance report");
+  const label = "Run governance report";
+  btn.onclick = () => runInto(btn, label, out, "Reading account configuration and policy state…", async () => {
+    const d = await api("/api/governance");
+    const passed = d.checks.filter(c => c.ok).length;
+    const p = d.policy;
+    const wrap = el("div", {}, banner(passed === d.checks.length ? "ok" : "warn", `${passed} of ${d.checks.length} posture checks passed`,
+      "Public network access stays open in this demo on purpose; the policy audit reports it."));
+    wrap.append(el("div", { className: "kpis" },
+      el("div", { className: "kpi" }, el("b", { textContent: d.account.slice(0, 18) + (d.account.length > 18 ? "…" : "") }), el("small", { textContent: "Foundry account" })),
+      el("div", { className: "kpi" }, el("b", { textContent: String(p.nonCompliantResources) }), el("small", { textContent: "non-compliant resources" })),
+      el("div", { className: "kpi" }, el("b", { textContent: String(p.nonCompliantPolicies) }), el("small", { textContent: "non-compliant policies" }))));
+    wrap.append(el("h3", { textContent: "Posture checks" }),
+      el("div", { className: "checklist" }, ...d.checks.map(c => el("div", { className: "check " + (c.ok ? "ok" : "warn") },
+        el("span", { className: "ci" }, icon(c.ok ? "ok" : "warn")), el("span", { textContent: c.label }), pill(c.ok ? "PASS" : "WARN", c.ok ? "ok" : "warn")))));
+    wrap.append(el("h3", { textContent: "Azure Policy assignments" }),
+      ...p.assignments.map(a => el("div", { className: "policy" }, el("code", { textContent: a.name }),
+        pill(a.nonCompliantResources ? `${a.nonCompliantResources} non-compliant` : "Compliant", a.nonCompliantResources ? "warn" : "ok"))));
+    return wrap;
+  });
+  body.append(el("div", { className: "tools" }, btn), out);
+}
+
+const BUILDERS = { obs: buildChat, grd: buildGuardrails, evl: buildEval, gov: buildGov };
+
+/* ---------- Shell ---------- */
+const pillarsEl = $("#pillars"), panelsEl = $("#panels");
+PILLARS.forEach((p, i) => {
+  const tab = el("button", { className: "pillar", role: "tab", id: "tab-" + p.id }, 
+    el("div", { className: "ico" }, icon(p.id)), el("b", { textContent: p.title }), el("span", { textContent: p.blurb }));
+  tab.style.setProperty("--c", p.color);
+  tab.onclick = () => select(p.id);
+  pillarsEl.append(tab);
+
+  const body = el("div", { className: "panel-body" });
+  const panel = el("section", { className: "panel", id: "panel-" + p.id, role: "tabpanel", hidden: true },
+    el("div", { className: "panel-head" }, el("div", {}, el("h2", { textContent: p.head }), el("p", { textContent: p.desc }))), body);
+  panel.style.setProperty("--accent", p.color);
+  BUILDERS[p.id](body);
+  panelsEl.append(panel);
 });
 
-fetch("/api/config").then(r => r.json()).then(c => $("dep").textContent = "model: " + c.deployment)
-  .catch(() => $("dep").textContent = "server not configured");
+function select(id) {
+  PILLARS.forEach(p => {
+    $("#tab-" + p.id).setAttribute("aria-selected", String(p.id === id));
+    $("#panel-" + p.id).hidden = p.id !== id;
+  });
+  history.replaceState(null, "", "#" + id);
+}
+select(PILLARS.some(p => "#" + p.id === location.hash) ? location.hash.slice(1) : "obs");
+
+api("/api/config").then(c => {
+  $("#statusDot").className = "dot live"; $("#statusText").textContent = "Connected";
+  $("#modelName").textContent = c.deployment; $("#modelChip").hidden = false;
+}).catch(() => { $("#statusDot").className = "dot off"; $("#statusText").textContent = "Server not configured"; });
 </script>
 </body>
 </html>
