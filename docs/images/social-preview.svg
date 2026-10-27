@@ -15,7 +15,7 @@
   <rect x="0" y="0" width="14" height="640" fill="#50b4ff"/>
 
   <!-- Title -->
-  <text x="70" y="110" font-size="46" font-weight="800" fill="#ffffff">Azure Learning by SK</text>
+  <text x="70" y="110" font-size="46" font-weight="800" fill="#ffffff">Azure APIM Lab</text>
   <text x="70" y="150" font-size="22" font-weight="400" fill="#9fc8ff">APIM as an AI Gateway — a hands-on 2-hour lab</text>
 
   <!-- Mini architecture graphic -->
@@ -61,5 +61,5 @@
 
   <!-- Footer -->
   <text x="70" y="590" font-size="15" fill="#6f93c4">Step-by-step tutorial · architecture diagram · checkpoints · beginner-friendly</text>
-  <text x="1210" y="590" text-anchor="end" font-size="14" fill="#4a6ea3">github.com/SwathiKannepalli34/Azure-Learning-by-SK</text>
+  <text x="1210" y="590" text-anchor="end" font-size="14" fill="#4a6ea3">github.com/SwathiKannepalli34/Azure-APIM-Lab</text>
 </svg>
