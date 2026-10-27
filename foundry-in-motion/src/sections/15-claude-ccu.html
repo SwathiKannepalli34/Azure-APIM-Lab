@@ -1,0 +1,113 @@
+<section class="sec" id="claude" data-nav="Claude & CCUs" data-group="Cost" data-c="rose">
+  <div class="sec-head">
+    <span class="eyebrow">15 · Claude consumption units</span>
+    <h2>What a CCU is and how to optimize it</h2>
+    <p class="lede">Claude models in Foundry are billed in <b>Claude Consumption Units (CCUs)</b>: a billing unit shared with Anthropic's other cloud platforms. CCU is billing only. You still call Claude with tokens and size workloads in tokens per minute, so <b>the way to optimize CCUs is to optimize tokens</b>.</p>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 250" role="img" aria-label="Tokens are priced at Anthropic per-model rates, discounts applied, converted to CCU, metered hourly, invoiced monthly">
+      <g>
+        <rect class="box hi" x="10" y="80" width="150" height="90" rx="14"/><text x="85" y="112" text-anchor="middle" font-size="14" style="font-weight:700">Tokens</text><text class="t-f" x="85" y="134" text-anchor="middle" font-size="11">input · output</text><text class="t-f" x="85" y="150" text-anchor="middle" font-size="11">by model</text>
+        <rect class="box" x="200" y="80" width="170" height="90" rx="14"/><text x="285" y="112" text-anchor="middle" font-size="14" style="font-weight:700">Price in dollars</text><text class="t-f" x="285" y="134" text-anchor="middle" font-size="11">Anthropic per-model</text><text class="t-f" x="285" y="150" text-anchor="middle" font-size="11">token rates</text>
+        <rect class="box" x="410" y="80" width="150" height="90" rx="14"/><text x="485" y="112" text-anchor="middle" font-size="14" style="font-weight:700">Discount</text><text class="t-f" x="485" y="134" text-anchor="middle" font-size="11">Marketplace</text><text class="t-f" x="485" y="150" text-anchor="middle" font-size="11">private offer</text>
+        <rect class="box" x="600" y="80" width="160" height="90" rx="14"/><text x="680" y="112" text-anchor="middle" font-size="14" style="font-weight:700">÷ CCU price</text><text class="t-f" x="680" y="134" text-anchor="middle" font-size="11">fixed, on the</text><text class="t-f" x="680" y="150" text-anchor="middle" font-size="11">Marketplace offer</text>
+        <rect class="box hi" x="800" y="80" width="190" height="90" rx="14"/><text x="895" y="112" text-anchor="middle" font-size="14" style="font-weight:700">CCU on your invoice</text><text class="t-f" x="895" y="134" text-anchor="middle" font-size="11">hourly metering</text><text class="t-f" x="895" y="150" text-anchor="middle" font-size="11">monthly in arrears · MACC</text>
+      </g>
+      <path class="flow" d="M160 125 L200 125"/><path class="flow b" d="M370 125 L410 125"/><path class="flow v" d="M560 125 L600 125"/><path class="flow g" d="M760 125 L800 125"/>
+      <text class="t-f" x="500" y="215" text-anchor="middle" font-size="12">Every lever that reduces tokens, or moves them to cheaper token classes, reduces CCU.</text>
+    </svg>
+  </div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>How CCU billing works</button><button>Optimization levers</button><button>Forecast &amp; what-if</button><button>Quota &amp; rate limits</button><button>Where to see cost</button></div>
+
+    <div class="tabpanel">
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Topic</th><th>Detail</th></tr></thead>
+        <tbody>
+          <tr><td><b>Billing unit</b></td><td>Claude Consumption Unit, used for invoicing all Claude models in Foundry.</td></tr>
+          <tr><td><b>CCU price</b></td><td>Fixed; published on the Claude offer on Azure Marketplace. Denominated in USD.</td></tr>
+          <tr><td><b>Conversion</b></td><td>Token usage is priced at Anthropic's per-model rates (the rate at the time of each call), discounts applied, then converted to CCU.</td></tr>
+          <tr><td><b>Cadence</b></td><td>Metered hourly, invoiced monthly in arrears. <b>Pay as you go: no prepaid CCU credits.</b></td></tr>
+          <tr><td><b>MACC</b></td><td>CCU spend is MACC-eligible and decrements your Azure Consumption Commitment like other Marketplace consumption.</td></tr>
+          <tr><td><b>Discounts</b></td><td>Applied at the token-to-CCU step through Azure Marketplace private offers; per-model rates are possible. Not a separate invoice line.</td></tr>
+          <tr><td><b>Scope</b></td><td>New Claude deployments bill in CCU. Earlier deployments keep their existing per-model plan; create a new deployment to move.</td></tr>
+          <tr><td><b>Subscribe</b></td><td>From Azure Marketplace (Claude Platform on Foundry offer) or from the model catalog in the portal.</td></tr>
+        </tbody></table></div>
+    </div>
+
+    <div class="tabpanel">
+      <div class="grid g2">
+        <div class="card glow"><h4>1 · Pick the right model</h4><p>Match the model to the task. Claude models range across Haiku, Sonnet, Opus and preview families; the docs note that <b>Opus 5.5 has lower per-token prices and less expensive cache reads</b>. Use model router in Cost mode to route simple prompts to cheaper models (deploy Claude first so it can be routed to).</p></div>
+        <div class="card glow"><h4>2 · Control thinking with effort</h4><p>Newer Claude models use <b>adaptive thinking</b> (the only thinking mode on 4.7 and later) and an <b>effort</b> parameter that trades thoroughness for token efficiency. Lower effort for routine steps; raise it only where quality needs it. Some models also support <b>token budgets</b> (<code>task_budget</code>) and per-turn effort.</p></div>
+        <div class="card glow"><h4>3 · Cache what repeats</h4><p><b>Prompt caching</b> (5-minute and 1-hour) reduces cost and latency for repeated context. <b>Automatic prompt caching</b> caches the last cacheable block with one parameter and moves the cache point as conversations grow. Cache <i>reads</i> do not count toward your input tokens-per-minute quota.</p></div>
+        <div class="card glow"><h4>4 · Keep context lean</h4><p><b>Context editing</b> clears old tool results and manages thinking blocks automatically. <b>Tool search</b> loads tools on demand (regex and BM25) so thousands of tools do not fill the window. Use <b>token counting</b> to know a prompt's size before you send it.</p></div>
+        <div class="card"><h4>5 · Retrieve less, better</h4><p>Ground with a focused knowledge base (Foundry IQ) and cap retrieval. Smaller, more relevant context is fewer input tokens on every call.</p></div>
+        <div class="card"><h4>6 · Operate with discipline</h4><p>Retry 429s with exponential backoff, track token use and request patterns, and use the least expensive suitable model. Monitor per-model tokens in the Foundry Monitor tab.</p></div>
+        <div class="card"><h4>7 · Optimize the commercial side</h4><p>Ask your Microsoft or Anthropic team about a <b>Marketplace private offer</b> for per-model discounts, and remember CCU counts against MACC.</p></div>
+        <div class="card"><h4>8 · Optimize the agent itself</h4><p>Use the <b>agent optimizer</b> to shorten and sharpen instructions and tool descriptions, and to compare models on quality versus cost against your dataset.</p></div>
+      </div>
+    </div>
+
+    <div class="tabpanel">
+      <div class="callout warn" style="margin-top:0"><div><b>Enter your own numbers.</b> Rates and the CCU price are placeholders. Use Anthropic's published per-model rates, your private-offer discount, and the CCU price on the Marketplace offer. The method follows the docs: tokens × rate, apply discount, divide by CCU price.</div></div>
+      <div class="card glow" id="ccuCalc">
+        <div class="calc">
+          <div class="grid g2">
+            <div class="field"><label for="cc-in">Uncached input (M tokens / month)</label><input id="cc-in" type="number" value="800" min="0"></div>
+            <div class="field"><label for="cc-cr">Cache-read input (M tokens / month)</label><input id="cc-cr" type="number" value="200" min="0"></div>
+            <div class="field"><label for="cc-out">Output (M tokens / month)</label><input id="cc-out" type="number" value="150" min="0"></div>
+            <div class="field"><label for="cc-disc">Private-offer discount (%)</label><input id="cc-disc" type="number" value="0" min="0" max="100"></div>
+            <div class="field"><label for="cc-rin">Input rate ($ per 1M) · placeholder</label><input id="cc-rin" type="number" value="5" step="0.01" min="0"></div>
+            <div class="field"><label for="cc-rcr">Cache-read rate ($ per 1M) · placeholder</label><input id="cc-rcr" type="number" value="0.5" step="0.01" min="0"></div>
+            <div class="field"><label for="cc-rout">Output rate ($ per 1M) · placeholder</label><input id="cc-rout" type="number" value="25" step="0.01" min="0"></div>
+            <div class="field"><label for="cc-price">CCU price ($) · placeholder</label><input id="cc-price" type="number" value="0.01" step="0.0001" min="0"></div>
+            <div class="field" style="grid-column:1/-1"><label for="cc-shift">Move <span id="cc-shift-v">0%</span> of uncached input into cache reads</label><input id="cc-shift" type="range" min="0" max="90" value="30"></div>
+            <div class="field" style="grid-column:1/-1"><label for="cc-trim">Reduce output by <span id="cc-trim-v">0%</span> (lower effort, tighter answers)</label><input id="cc-trim" type="range" min="0" max="60" value="15"></div>
+          </div>
+          <div class="out">
+            <div class="row"><span>Baseline</span><b><span id="cc-base">0</span> CCU</b></div>
+            <div class="row"><span>After optimization</span><b><span id="cc-opt">0</span> CCU</b></div>
+            <div style="margin:12px 0 2px;color:var(--mute);font-size:13px">You save</div>
+            <div class="big" id="cc-save">0</div>
+            <div class="row" style="margin-top:10px"><span>Dollar view</span><b id="cc-usd">$0</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tabpanel">
+      <p>CCU does not change how you size Claude workloads. Plan with <b>RPM</b>, <b>ITPM</b> (uncached input tokens per minute) and <b>OTPM</b> (output tokens per minute), per model.</p>
+      <ul class="tight">
+        <li><b>Subscription-level pools.</b> All Global Standard deployments of the same model and version in a subscription share one quota pool across regions. Data Zone Standard deployments share a pool within each data zone (for example the US zone).</li>
+        <li><b>Cache-aware ITPM.</b> For most Claude models only <b>uncached</b> input counts: input after the last cache breakpoint plus cache-creation tokens (5-minute or 1-hour). <b>Cache-read tokens do not count</b>, which makes caching a throughput lever as well as a cost lever.</li>
+        <li>Default limits depend on your subscription type (pay-as-you-go, Enterprise and MCA-E, Free Trial). Some preview models start at zero until you request quota.</li>
+      </ul>
+    </div>
+
+    <div class="tabpanel">
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Surface</th><th>What you see</th></tr></thead>
+        <tbody>
+          <tr><td><b>Azure Cost Management</b></td><td>Actual billed usage and cost, aggregated under the single CCU meter (not split by model).</td></tr>
+          <tr><td><b>Foundry portal › Pricing tab</b></td><td>Discover › Models › a Claude model › Pricing, linking to Claude pricing.</td></tr>
+          <tr><td><b>Foundry portal › Monitor tab</b></td><td>Per-model token usage and request counts. For CCU deployments, an <b>estimated cost</b> chart.</td></tr>
+          <tr><td><b>Marketplace private offer</b></td><td>Your contracted pricing, reflected in billed CCU.</td></tr>
+        </tbody></table></div>
+      <div class="callout"><div>Foundry's estimates do not reflect private-offer discounts, so they can differ from billed cost. Treat Cost Management and your invoice as the source of truth.</div></div>
+    </div>
+  </div>
+
+  <div class="callout warn"><div><b>Safety note for Claude.</b> Foundry does not apply built-in content filtering to Claude at deployment time. Configure Azure AI Content Safety during inference, and review how data is processed and retained for Claude under Anthropic's terms.</div></div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:foundry-models/concepts/claude-models-billing|Claude Consumption Units billing}}
+    {{doc:foundry-models/concepts/claude-models|Claude models in Foundry}}
+    {{doc:foundry-models/concepts/claude-models-quotas-limits|Claude quotas and rate limits}}
+    {{doc:foundry-models/concepts/claude-models-hosting-comparison|Compare hosting options}}
+    {{doc:foundry-models/how-to/use-foundry-models-claude|Deploy and use Claude}}
+    {{doc:responsible-ai/claude-models/data-privacy|Data privacy for Claude}}
+    {{doc:openai/concepts/model-router|Model router}}
+  </div>
+</section>

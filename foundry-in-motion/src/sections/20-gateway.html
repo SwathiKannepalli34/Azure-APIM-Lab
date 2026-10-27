@@ -1,0 +1,138 @@
+<section class="sec" id="gateway" data-nav="AI Gateway" data-group="Govern" data-c="violet">
+  <div class="sec-head">
+    <span class="eyebrow">20 · Token governance</span>
+    <h2>AI Gateway: tiers, limits and every capability</h2>
+    <p class="lede">AI Gateway puts <b>Azure API Management (APIM)</b> between clients and your Foundry models and tools. It gives you per-project token limits and quotas, centralized policy, observability and a governed entry point for MCP tools and custom agents.</p>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 380" role="img" aria-label="Clients and agents flow through the AI Gateway to model deployments">
+      <rect class="box" x="10" y="40" width="150" height="56" rx="12"/><text x="85" y="66" text-anchor="middle" font-size="13">Project A agents</text><text class="t-f" x="85" y="84" text-anchor="middle" font-size="11">own TPM and quota</text>
+      <rect class="box" x="10" y="116" width="150" height="56" rx="12"/><text x="85" y="142" text-anchor="middle" font-size="13">Project B agents</text><text class="t-f" x="85" y="160" text-anchor="middle" font-size="11">own TPM and quota</text>
+      <rect class="box" x="10" y="192" width="150" height="56" rx="12"/><text x="85" y="218" text-anchor="middle" font-size="13">Custom agents</text><text class="t-f" x="85" y="236" text-anchor="middle" font-size="11">registered, governed</text>
+      <rect class="box" x="10" y="268" width="150" height="56" rx="12"/><text x="85" y="294" text-anchor="middle" font-size="13">MCP clients</text><text class="t-f" x="85" y="312" text-anchor="middle" font-size="11">tool traffic</text>
+      <rect class="zone" x="220" y="20" width="430" height="340" rx="22" style="stroke:var(--violet);fill:color-mix(in srgb,var(--violet) 6%,transparent)"/><text x="435" y="12" text-anchor="middle" class="t-m" font-size="11" letter-spacing="1.4">AI GATEWAY · AZURE API MANAGEMENT (v2 TIERS)</text>
+      <g>
+        <rect class="box hi" x="240" y="40" width="390" height="46" rx="10"/><text x="435" y="68" text-anchor="middle" font-size="13">Token limit (TPM, 429) · token quota (hour…year, 403)</text>
+        <rect class="box" x="240" y="96" width="390" height="40" rx="10"/><text x="435" y="121" text-anchor="middle" font-size="13">Token metrics → Application Insights</text>
+        <rect class="box" x="240" y="146" width="390" height="40" rx="10"/><text x="435" y="171" text-anchor="middle" font-size="13">Semantic caching (Azure Managed Redis)</text>
+        <rect class="box" x="240" y="196" width="390" height="40" rx="10"/><text x="435" y="221" text-anchor="middle" font-size="13">Load balancing · circuit breaker across backends</text>
+        <rect class="box" x="240" y="246" width="390" height="40" rx="10"/><text x="435" y="271" text-anchor="middle" font-size="13">MCP and agent governance · auth · IP filtering</text>
+        <rect class="box" x="240" y="296" width="390" height="48" rx="10"/><text x="435" y="318" text-anchor="middle" font-size="12">Logging: tokens, prompts, completions</text><text class="t-f" x="435" y="335" text-anchor="middle" font-size="11">ApiManagementGatewayLogs → Log Analytics</text>
+      </g>
+      <rect class="box hi" x="720" y="40" width="270" height="76" rx="14"/><text x="855" y="70" text-anchor="middle" font-size="14" style="font-weight:700">Provisioned (PTU)</text><text class="t-f" x="855" y="92" text-anchor="middle" font-size="11">priority backend: guaranteed throughput</text>
+      <rect class="box" x="720" y="136" width="270" height="76" rx="14"/><text x="855" y="166" text-anchor="middle" font-size="14" style="font-weight:700">Standard (pay as you go)</text><text class="t-f" x="855" y="188" text-anchor="middle" font-size="11">overflow and secondary backend</text>
+      <rect class="box" x="720" y="232" width="270" height="76" rx="14"/><text x="855" y="262" text-anchor="middle" font-size="14" style="font-weight:700">Other endpoints</text><text class="t-f" x="855" y="284" text-anchor="middle" font-size="11">partner models, your own models, MCP servers</text>
+      <path class="flow" d="M160 68 L240 63"/><path class="flow b" d="M160 144 C200 144 210 110 240 118"/><path class="flow v" d="M160 220 C200 220 210 200 240 215"/><path class="flow g" d="M160 296 C200 296 210 270 240 266"/>
+      <path class="flow a" d="M630 63 C680 63 690 78 720 78"/><path class="flow a" d="M630 216 C680 190 690 175 720 174"/><path class="flow a" d="M630 266 C680 266 690 270 720 270"/>
+    </svg>
+    <p class="cap">Limits apply per project on the shared gateway. Policies are enforced in API Management; the Foundry portal handles setup and token limits.</p>
+  </div>
+
+  <h3>API Management tiers for AI Gateway</h3>
+  <div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>Tier</th><th>Role in Foundry AI Gateway (per the docs)</th></tr></thead>
+    <tbody>
+      <tr><td><b>Basic v2</b></td><td>What the portal creates when you choose <b>Create new</b>. Designed for <b>development and testing with SLA support</b>. Typically provisions in 5 to 10 minutes.</td></tr>
+      <tr><td><b>Standard v2</b></td><td>Recommended for <b>production or higher throughput</b> when you bring an existing instance. For a private Foundry resource, use it with a <b>private endpoint</b>.</td></tr>
+      <tr><td><b>Premium v2</b></td><td>Production and higher throughput. For a private Foundry resource, use it with a private endpoint, or <b>injected into a virtual network</b>.</td></tr>
+      <tr><td><b>Classic tiers</b> (Developer, Basic, Standard, Premium) and Consumption</td><td><b>Not selectable as an existing instance.</b> When you choose <b>Use existing APIM</b>, only instances in a <b>v2 tier</b> appear, in the same Entra tenant and subscription as the Foundry resource.</td></tr>
+    </tbody></table></div>
+  <div class="callout"><div><b>Free tier.</b> AI Gateway includes a free tier for Azure API Management; check API Management pricing for current details and eligibility. The general AI gateway capabilities in APIM apply across tiers, but individual capabilities vary by tier (for example the Anthropic Messages API is currently supported in the v2 tiers). Confirm in the APIM tier comparison before you choose.</div></div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>Enable it</button><button>Token limits</button><button>Policies &amp; capabilities</button><button>MCP &amp; agents</button><button>Verify &amp; troubleshoot</button></div>
+
+    <div class="tabpanel">
+      <ol class="steps">
+        <li><b>Check permissions</b><span>Contributor or Owner on the resource group (to create APIM) or API Management Service Contributor on an existing instance; Foundry Account Owner or Owner on the Foundry resource.</span></li>
+        <li><b>Manage › AI Gateway › Add AI Gateway</b><span>Pick the Foundry resource.</span></li>
+        <li><b>Create new or Use existing APIM</b><span>Create new makes a Basic v2 instance. Existing instances must be a v2 tier, in the same tenant and subscription.</span></li>
+        <li><b>Name it and Add</b><span>Wait until the status is <b>Enabled</b>.</span></li>
+        <li><b>Add projects</b><span>New projects in the resource have the gateway enabled by default. Existing projects need <b>Add project to gateway</b>.</span></li>
+      </ol>
+      <div class="callout"><div>You enable the gateway per <b>Foundry resource</b>; all its projects share it and its APIM instance, each with its own limits. For separate gateways (strict isolation or different networking), use separate Foundry resources.</div></div>
+    </div>
+
+    <div class="tabpanel">
+      <p>Manage › AI Gateway › your gateway › <b>Token management</b> › <b>+ Set limit</b>: choose the project and deployment, then enter a tokens-per-minute value.</p>
+      <div class="grid g2">
+        <div class="card glow"><h4>TPM rate limit</h4><p>Caps consumption per minute. Exceed it and the caller gets <b>429 Too Many Requests</b>.</p></div>
+        <div class="card glow"><h4>Total token quota</h4><p>Caps consumption per period (hourly, daily, weekly, monthly or yearly). Exceed it and the caller gets <b>403 Forbidden</b>.</p></div>
+      </div>
+      <ul class="tight" style="margin-top:12px">
+        <li>Use it for multi-team containment, cost control by capping aggregate usage, and compliance ceilings.</li>
+        <li>Concurrent requests can briefly exceed a limit until responses are processed. New limits apply immediately to later requests.</li>
+        <li>If latency rises after enabling, compare against calling the model directly; check APIM region versus the resource region and cold start.</li>
+      </ul>
+    </div>
+
+    <div class="tabpanel">
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Capability</th><th>How APIM does it</th></tr></thead>
+        <tbody>
+          <tr><td><b>Token rate limiting and quotas</b></td><td><code>llm-token-limit</code> policy: a TPM limit or a token quota over hour to year, on any counter key (subscription key, IP, or expression); can precalculate prompt tokens to skip calls that already exceed the limit.</td></tr>
+          <tr><td><b>Token metrics</b></td><td><code>llm-emit-token-metric</code> policy: emit consumption with custom dimensions to Application Insights and Azure Monitor.</td></tr>
+          <tr><td><b>Semantic caching</b></td><td><code>llm-semantic-cache-lookup</code> and <code>llm-semantic-cache-store</code> with Azure Managed Redis (or a compatible RediSearch cache) and an embeddings API; reuses completions for similar prompts.</td></tr>
+          <tr><td><b>Load balancing</b></td><td>Backend pool with round-robin, weighted, priority-based or session-aware balancing, for example prioritizing PTU backends.</td></tr>
+          <tr><td><b>Circuit breaker</b></td><td>Stops sending to unresponsive backends; trip duration follows the backend's <code>Retry-After</code> header.</td></tr>
+          <tr><td><b>Logging</b></td><td>Log tokens, prompts and completions for billing and audit; built-in dashboard in APIM.</td></tr>
+          <tr><td><b>Scale</b></td><td>Automatic or manual scale units and regional gateways, depending on tier.</td></tr>
+          <tr><td><b>Developer experience</b></td><td>Self-service for teams; credential manager for OAuth to APIs and MCP servers; unified model API (preview).</td></tr>
+        </tbody></table></div>
+      <div class="code" data-lang="xml"><pre>&lt;!-- 500 tokens per minute per subscription key --&gt;
+&lt;llm-token-limit counter-key="@(context.Subscription.Id)"
+                 tokens-per-minute="500" estimate-prompt-tokens="false"
+                 remaining-tokens-variable-name="remainingTokens" /&gt;
+
+&lt;!-- emit token metrics to Application Insights --&gt;
+&lt;llm-emit-token-metric namespace="llm-metrics" /&gt;</pre></div>
+    </div>
+
+    <div class="tabpanel">
+      <p>Route MCP traffic through the gateway <span class="tag prev">Preview</span> for a single governed entry point with authentication, rate limits, IP restrictions and audit logging, <b>without modifying your MCP servers or agent code</b>.</p>
+      <ul class="tight">
+        <li>Only <b>new MCP tools created in the portal that do not use managed OAuth</b> are routed through the gateway. The tool's endpoint then shows the APIM URL instead of the server URL.</li>
+        <li>Supported MCP auth: managed identity (Entra), key-based, custom OAuth identity passthrough, or unauthenticated where applicable.</li>
+        <li>Apply policies in APIM: rate limit, IP filter, correlation ID header, and removal of sensitive headers (Cookie, Referer).</li>
+        <li><b>Register custom agents</b> from other platforms in the control plane and govern them through the same gateway.</li>
+        <li><b>Bring your own model:</b> connect models hosted behind your own gateway (APIM or a non-Azure gateway) to Foundry Agent Service, keeping control of the endpoint.</li>
+      </ul>
+      <div class="code" data-lang="xml"><pre>&lt;inbound&gt;
+  &lt;base /&gt;
+  &lt;rate-limit-by-key calls="60" renewal-period="60" counter-key="@(context.Request.IpAddress)" /&gt;
+  &lt;set-header name="X-Correlation-Id" exists-action="override"&gt;&lt;value&gt;@(context.RequestId)&lt;/value&gt;&lt;/set-header&gt;
+&lt;/inbound&gt;</pre></div>
+    </div>
+
+    <div class="tabpanel">
+      <ol class="steps">
+        <li><b>Check metrics</b><span>Azure portal › your APIM › Monitoring › Metrics › Requests. Make a test call and watch the count rise.</span></li>
+        <li><b>Turn on logs</b><span>Diagnostic settings › Logs related to ApiManagement Gateway › Log Analytics, resource-specific tables.</span></li>
+        <li><b>Query</b><span><code>ApiManagementGatewayLogs | where TimeGenerated &gt; ago(1h)</code>. Look for 200 responses with your API name.</span></li>
+        <li><b>Test limits</b><span>Exceed the TPM limit (429) and the quota (403) on purpose.</span></li>
+      </ol>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Symptom</th><th>Likely cause</th></tr></thead>
+        <tbody>
+          <tr><td>Gateway not listed after creation</td><td>Still provisioning; wait a few minutes (Basic v2 is typically 5 to 10).</td></tr>
+          <tr><td>Project shows Disabled; requests bypass</td><td>Existing projects are not auto-enabled; add the project to the gateway.</td></tr>
+          <tr><td>Existing APIM not in the list</td><td>Not a v2 tier, different tenant or subscription, or missing permissions.</td></tr>
+          <tr><td>Permission error creating the gateway</td><td>Missing Contributor/Owner or API Management Service Contributor.</td></tr>
+        </tbody></table></div>
+    </div>
+  </div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:configuration/enable-ai-api-management-gateway-portal|Configure AI Gateway}}
+    {{doc:control-plane/how-to-enforce-limits-models|Enforce token limits}}
+    {{doc:agents/how-to/tools/governance|Govern MCP tools}}
+    {{doc:agents/how-to/ai-gateway|Bring your own model}}
+    {{doc:control-plane/register-custom-agent|Register custom agents}}
+    {{url:https://learn.microsoft.com/en-us/azure/api-management/genai-gateway-capabilities|AI gateway capabilities in API Management}}
+    {{url:https://learn.microsoft.com/en-us/azure/api-management/llm-token-limit-policy|llm-token-limit policy}}
+    {{url:https://learn.microsoft.com/en-us/azure/api-management/llm-emit-token-metric-policy|llm-emit-token-metric policy}}
+    {{url:https://learn.microsoft.com/en-us/azure/api-management/api-management-features|API Management tier comparison}}
+    {{url:https://azure.microsoft.com/pricing/details/api-management/|API Management pricing}}
+  </div>
+</section>

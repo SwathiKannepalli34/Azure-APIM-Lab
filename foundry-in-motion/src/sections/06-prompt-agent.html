@@ -1,0 +1,115 @@
+<section class="sec" id="prompt-agent" data-nav="Prompt agents" data-group="Agents" data-c="blue">
+  <div class="sec-head">
+    <span class="eyebrow">06 · Declarative agents</span>
+    <h2>Create a prompt agent</h2>
+    <p class="lede">A prompt agent is defined entirely by a model, instructions and tools. Foundry hosts and runs it, so there is no code or container to maintain. Every change creates a new immutable <b>version</b> served through a stable endpoint.</p>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 300" role="img" aria-label="Runtime components: agent, conversation, response">
+      <rect class="box" x="20" y="110" width="150" height="80" rx="14"/><text x="95" y="146" text-anchor="middle" font-size="15">User input</text><text class="t-f" x="95" y="166" text-anchor="middle" font-size="11">text, files, images</text>
+      <rect class="zone" x="230" y="30" width="540" height="240" rx="22"/><text x="250" y="56" class="t-m" font-size="12" letter-spacing="1.6">FOUNDRY AGENT SERVICE</text>
+      <rect class="box hi" x="260" y="80" width="220" height="170" rx="16"/><text x="370" y="108" text-anchor="middle" font-size="15" style="font-weight:700">Agent (version 3)</text>
+      <rect class="box" x="276" y="124" width="188" height="30" rx="8"/><text x="370" y="144" text-anchor="middle" font-size="12">Model deployment</text>
+      <rect class="box" x="276" y="162" width="188" height="30" rx="8"/><text x="370" y="182" text-anchor="middle" font-size="12">Instructions</text>
+      <rect class="box" x="276" y="200" width="188" height="30" rx="8"/><text x="370" y="220" text-anchor="middle" font-size="12">Tools · knowledge · memory</text>
+      <rect class="box" x="520" y="80" width="230" height="76" rx="14"/><text x="635" y="108" text-anchor="middle" font-size="14" style="font-weight:700">Conversation</text><text class="t-f" x="635" y="130" text-anchor="middle" font-size="11">durable history: messages, tool calls, outputs</text>
+      <rect class="box" x="520" y="172" width="230" height="78" rx="14"/><text x="635" y="200" text-anchor="middle" font-size="14" style="font-weight:700">Response</text><text class="t-f" x="635" y="222" text-anchor="middle" font-size="11">one run of the agent; streamed or background</text>
+      <rect class="box" x="830" y="110" width="150" height="80" rx="14"/><text x="905" y="146" text-anchor="middle" font-size="15">Answer</text><text class="t-f" x="905" y="166" text-anchor="middle" font-size="11">with citations / actions</text>
+      <path class="flow" d="M170 150 L260 150"/><path class="flow b" d="M480 130 L520 118"/><path class="flow v" d="M480 200 L520 210"/><path class="flow g" d="M750 210 C790 210 800 170 830 160"/>
+      <path class="flow a" d="M635 156 L635 172"/>
+    </svg>
+    <p class="cap">Agent = reusable behavior. Conversation = server-side history. Response = one execution. Start with a response, then add an agent and a conversation as you need them.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>Portal steps</button><button>Code</button><button>Voice &amp; workflows</button><button>Endpoint &amp; versions</button><button>Best practices</button></div>
+
+    <div class="tabpanel">
+      <ol class="steps">
+        <li><b>Deploy a model</b><span>An agent needs a deployed model. Any Foundry direct model works; <code>gpt-5-mini</code> is used in the quickstart.</span></li>
+        <li><b>Build › Agents › Create</b><span>Name the agent and choose the model deployment.</span></li>
+        <li><b>Write instructions</b><span>Define role, tone, what the agent must and must not do, and how to use its tools. Keep them specific and testable.</span></li>
+        <li><b>Add tools and knowledge</b><span>Attach a toolbox, MCP servers, file search, Foundry IQ, memory, web search, code interpreter and more (see the tools section).</span></li>
+        <li><b>Test in the playground</b><span>Chat, inspect tool calls, adjust, and save. Each save is a new version.</span></li>
+        <li><b>Evaluate, then share</b><span>Run an evaluation, add a guardrail, then <b>Publish</b> to Teams and Microsoft Copilot or call the endpoint from your app.</span></li>
+      </ol>
+    </div>
+
+    <div class="tabpanel">
+      <p>Install <code>azure-ai-projects&gt;=2.3.0</code> (the 2.x SDK targets the current portal; it is not compatible with 1.x) and sign in with <code>az login</code>.</p>
+      <div class="code" data-lang="python"><pre>from azure.identity import DefaultAzureCredential
+from azure.ai.projects import AIProjectClient
+from azure.ai.projects.models import PromptAgentDefinition
+
+project = AIProjectClient(
+    endpoint="https://&lt;resource&gt;.services.ai.azure.com/api/projects/&lt;project&gt;",
+    credential=DefaultAzureCredential(),
+)
+
+# Create (or update) the agent: every call produces a new immutable version
+agent = project.agents.create_version(
+    agent_name="my-agent",
+    definition=PromptAgentDefinition(
+        model="gpt-5-mini",
+        instructions="You are a helpful assistant that answers general questions",
+    ),
+)
+
+# Chat with it over the Responses API, with server-side conversation state
+openai = project.get_openai_client(agent_name="my-agent")
+conversation = openai.conversations.create()
+reply = openai.responses.create(conversation=conversation.id, input="Hello!")
+print(reply.output_text)</pre></div>
+      <p>The same flow exists for C#, TypeScript, Java and REST.</p>
+    </div>
+
+    <div class="tabpanel">
+      <div class="grid g2">
+        <div class="card"><h4>Voice-based prompt agents</h4><p>Real-time spoken experiences. Configure the model, instructions, audio settings, an optional greeting and tools; connect through <b>Voice Live</b>. Foundry manages lifecycle and voice orchestration. Telephony channels, image input in a turn, sub-agents and voice-specific optimization are documented.</p></div>
+        <div class="card"><h4>Workflows <span class="tag prev">Preview</span></h4><p>Orchestrate several agents and steps when one task spans more than one agent. If a single agent with tools can finish the job, keep it simple. Declarative workflows can also be used and migrated in VS Code.</p></div>
+        <div class="card"><h4>Agent-to-agent (A2A)</h4><p>Agents can delegate to other agents. A2A v1.0 is generally available; v0.3 is preview. You can enable incoming A2A on a Foundry agent so other agents can call it.</p></div>
+        <div class="card"><h4>Routines <span class="tag prev">Preview</span></h4><p>Trigger agent work from schedules and events rather than only from user messages.</p></div>
+      </div>
+    </div>
+
+    <div class="tabpanel">
+      <p>Every agent gets a <b>stable endpoint</b>. It is live from creation, and you do not need to publish for programmatic access.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Protocol</th><th>Path under <code>/agents/{agent}/endpoint/protocols/</code></th></tr></thead>
+        <tbody>
+          <tr><td>Responses (default)</td><td><code>openai/responses</code></td></tr>
+          <tr><td>Activity (Teams, Microsoft 365)</td><td><code>activityprotocol</code></td></tr>
+          <tr><td>Invocations</td><td><code>invocations</code></td></tr>
+          <tr><td>A2A v1.0 GA · v0.3 preview</td><td><code>a2a</code></td></tr>
+          <tr><td>MCP <span class="tag prev">Preview</span></td><td><code>mcp</code></td></tr>
+        </tbody></table></div>
+      <ul class="tight">
+        <li><b>Version routing.</b> By default 100% of traffic goes to the latest version. Pin a version with a <code>version_selector</code> when an agent is in production or published.</li>
+        <li><b>Inbound auth.</b> Azure RBAC (Entra) by default, plus agent-blueprint and Bot Service schemes used when publishing. <b>API key authentication is not supported</b> for agent endpoints.</li>
+        <li><b>Classic migration.</b> Assistants-style agents move to the new agent model and the Responses API.</li>
+      </ul>
+    </div>
+
+    <div class="tabpanel">
+      <ul class="tight">
+        <li>Keep instructions short, concrete and verifiable. Put long reference content in a knowledge source, not in the prompt.</li>
+        <li>Describe <b>when</b> to use each tool and what its parameters mean; vague tool descriptions are a common cause of wrong tool calls.</li>
+        <li>Prefer one agent with the right tools over a multi-agent workflow until you need orchestration.</li>
+        <li>Build an evaluation dataset early so every change is measured, not anecdotal.</li>
+        <li>Let the <b>agent optimizer</b> propose better instructions and tool descriptions against your dataset (next sections).</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:agents/quickstarts/prompt-agent|Quickstart: prompt agent}}
+    {{doc:agents/overview|Agent Service overview}}
+    {{doc:agents/concepts/runtime-components|Agents, conversations, responses}}
+    {{doc:agents/how-to/configure-agent|Configure an agent}}
+    {{doc:agents/quickstarts/prompt-voice-agent|Voice agent quickstart}}
+    {{doc:agents/concepts/workflow|Workflows}}
+    {{doc:agents/how-to/tools/agent-to-agent|A2A}}
+    {{doc:agents/concepts/development-lifecycle|Agent development lifecycle}}
+  </div>
+</section>

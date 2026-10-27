@@ -1,0 +1,41 @@
+<section class="sec" id="portal" data-nav="Portal tour" data-group="Foundations" data-c="violet">
+  <div class="sec-head">
+    <span class="eyebrow">02 · Know your way around</span>
+    <h2>Every tab in the Foundry portal</h2>
+    <p class="lede">The current portal splits features across six top-level sections, each with its own left pane. Click through the replica below to see what lives where, what it is scoped to, and which doc explains it.</p>
+  </div>
+
+  <div class="portal" id="portalExplorer" role="group" aria-label="Interactive Foundry portal map">
+    <div class="p-bar" role="tablist"><span class="p-dots"><i></i><i></i><i></i></span><span class="p-toggle">New Foundry <i></i></span></div>
+    <div class="p-body"><div class="p-left"></div><div class="p-main"></div></div>
+  </div>
+
+  <div class="grid g3 auto" style="margin-top:18px">
+    <div class="mini"><b>Scope matters</b><span><b>Home, Discover, Build</b> act on the project you selected. <b>Operate</b> spans all projects. <b>Manage</b> targets the selected project and its parent resource.</span></div>
+    <div class="mini"><b>Switch projects first</b><span>Use the project name dropdown in the upper left before acting on a different project, especially in Manage.</span></div>
+    <div class="mini"><b>The UI moves</b><span>The Foundry portal is updated frequently. If a step does not match, look for the equivalent option in the current UI.</span></div>
+  </div>
+
+  <h3>Classic portal to current portal</h3>
+  <div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>You used to…</th><th>Classic portal</th><th>Now</th></tr></thead>
+    <tbody>
+      <tr><td>View model deployments</td><td>Models + endpoints</td><td>Build › Models</td></tr>
+      <tr><td>Browse the catalog</td><td>Model catalog</td><td>Discover › Model catalog</td></tr>
+      <tr><td>Build agents</td><td>Agents</td><td>Build › Agents</td></tr>
+      <tr><td>Run evaluations</td><td>Evaluation</td><td>Build › Evaluations</td></tr>
+      <tr><td>Trace and monitor</td><td>Tracing</td><td>Operate › Tracing</td></tr>
+      <tr><td>Manage quota</td><td>Management center › Quota</td><td>Manage › Quota</td></tr>
+      <tr><td>Manage users</td><td>Management center › Users</td><td>Manage › Project details › Users</td></tr>
+      <tr><td>Guardrails and content filters</td><td>Guardrails + controls</td><td>Operate › Compliance (and Build › Guardrails)</td></tr>
+    </tbody></table></div>
+
+  <div class="callout warn"><div><b>Terminology changed too.</b> Threads are now <b>Conversations</b>, runs are <b>Responses</b>, the Assistants API became the <b>Responses API</b>, and agents are versioned (<code>create_version</code>). The Assistants API sunsets <b>August 26, 2026</b> and the <code>azure-ai-inference</code> package retires the same day, so migrate to the <code>openai</code> package and <code>azure-ai-projects</code> 2.x.</div></div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:how-to/navigate-from-classic|Portal navigation reference}}
+    {{doc:control-plane/overview|Control plane panes}}
+    {{doc:concepts/concept-playgrounds|Playgrounds}}
+    {{doc:whats-new-foundry|What's new in Foundry}}
+  </div>
+</section>

@@ -1,0 +1,110 @@
+<section class="sec" id="overview" data-nav="Overview" data-group="Foundations" data-c="blue">
+  <div class="hero">
+    <span class="eyebrow">Microsoft Foundry · customer guide</span>
+    <h1>From first project to a <span class="grad">governed fleet of AI agents</span></h1>
+    <p class="lede">One platform to build agents, choose models, ground them in your knowledge, run them at scale, and prove they are safe, observable and under control. This guide walks the whole path with live visuals and links to the official docs.</p>
+    <div class="stats">
+      <div class="stat"><b>10,000+</b><span>models in the catalog</span></div>
+      <div class="stat"><b>3</b><span>agent styles: prompt, workflow, hosted</span></div>
+      <div class="stat"><b>1,000+</b><span>connectors in the tool catalog</span></div>
+      <div class="stat"><b>4</b><span>guardrail intervention points</span></div>
+    </div>
+
+    <div class="diagram hero-art" aria-label="Foundry architecture at a glance">
+      <svg viewBox="0 0 1000 380" role="img" aria-label="Apps and channels call agents in a Foundry project, which use models, tools and knowledge, all wrapped by a control plane.">
+        <defs>
+          <linearGradient id="hg" x1="0" x2="1"><stop offset="0" stop-color="#5b8cff"/><stop offset="1" stop-color="#9b6bff"/></linearGradient>
+        </defs>
+        <!-- left: consumers -->
+        <g>
+          <rect class="box" x="20" y="60" width="150" height="54" rx="12"/><text x="95" y="92" text-anchor="middle" font-size="14">Your apps</text>
+          <rect class="box" x="20" y="136" width="150" height="54" rx="12"/><text x="95" y="162" text-anchor="middle" font-size="14">Teams &amp; Copilot</text><text class="t-f" x="95" y="180" text-anchor="middle" font-size="11">published agents</text>
+          <rect class="box" x="20" y="212" width="150" height="54" rx="12"/><text x="95" y="238" text-anchor="middle" font-size="14">Other agents</text><text class="t-f" x="95" y="256" text-anchor="middle" font-size="11">A2A, MCP clients</text>
+        </g>
+        <!-- zone -->
+        <rect class="zone" x="225" y="20" width="560" height="296" rx="22"/>
+        <text x="245" y="46" font-size="13" class="t-m" letter-spacing="1.6">MICROSOFT FOUNDRY RESOURCE</text>
+        <rect class="box hi" x="250" y="62" width="510" height="196" rx="16"/>
+        <text x="270" y="86" font-size="12" class="t-m">PROJECT</text>
+        <!-- agents -->
+        <g class="float"><rect x="272" y="104" width="150" height="132" rx="14" fill="url(#hg)" opacity=".92"/>
+          <text x="347" y="134" text-anchor="middle" font-size="15" fill="#fff" style="fill:#fff;font-weight:700">Agents</text>
+          <text x="347" y="158" text-anchor="middle" font-size="12" style="fill:#fff">Prompt</text>
+          <text x="347" y="178" text-anchor="middle" font-size="12" style="fill:#fff">Workflow</text>
+          <text x="347" y="198" text-anchor="middle" font-size="12" style="fill:#fff">Hosted (your code)</text></g>
+        <g>
+          <rect class="box" x="448" y="104" width="130" height="56" rx="12"/><text x="513" y="128" text-anchor="middle" font-size="14">Models</text><text class="t-f" x="513" y="146" text-anchor="middle" font-size="11">catalog &amp; deployments</text>
+          <rect class="box" x="592" y="104" width="150" height="56" rx="12"/><text x="667" y="128" text-anchor="middle" font-size="14">Tools</text><text class="t-f" x="667" y="146" text-anchor="middle" font-size="11">toolbox, MCP, connectors</text>
+          <rect class="box" x="448" y="176" width="130" height="60" rx="12"/><text x="513" y="200" text-anchor="middle" font-size="14">Knowledge</text><text class="t-f" x="513" y="218" text-anchor="middle" font-size="11">Foundry IQ</text>
+          <rect class="box" x="592" y="176" width="150" height="60" rx="12"/><text x="667" y="200" text-anchor="middle" font-size="14">Memory</text><text class="t-f" x="667" y="218" text-anchor="middle" font-size="11">long-term recall</text>
+        </g>
+        <!-- control plane bar -->
+        <rect x="250" y="272" width="510" height="34" rx="10" fill="color-mix(in srgb,var(--amber) 18%,transparent)" stroke="var(--amber)" stroke-width="1.2"/>
+        <text x="505" y="294" text-anchor="middle" font-size="13" style="fill:var(--amber);font-weight:600">Control plane · observability · evaluations · guardrails · governance</text>
+        <!-- right: data -->
+        <g>
+          <rect class="box" x="830" y="60" width="150" height="54" rx="12"/><text x="905" y="92" text-anchor="middle" font-size="14">Your data</text>
+          <rect class="box" x="830" y="136" width="150" height="54" rx="12"/><text x="905" y="162" text-anchor="middle" font-size="14">SaaS &amp; APIs</text><text class="t-f" x="905" y="180" text-anchor="middle" font-size="11">connectors, OpenAPI</text>
+          <rect class="box" x="830" y="212" width="150" height="54" rx="12"/><text x="905" y="238" text-anchor="middle" font-size="14">Azure services</text><text class="t-f" x="905" y="256" text-anchor="middle" font-size="11">search, storage, functions</text>
+        </g>
+        <!-- flows -->
+        <path class="flow" d="M170 87 C200 87 215 120 272 140"/><path class="flow b" d="M170 163 C205 163 225 165 272 168"/><path class="flow v" d="M170 239 C205 239 225 205 272 196"/>
+        <path class="flow g" d="M742 130 C790 120 800 95 830 87"/><path class="flow a" d="M742 206 C790 190 800 170 830 163"/><path class="flow b" d="M742 220 C790 232 800 238 830 239"/>
+        <path class="flow" d="M422 150 L448 132"/><path class="flow v" d="M422 190 L448 200"/>
+      </svg>
+      <p class="cap">Consumers call agents. Agents use models, tools, knowledge and memory inside a project. A control plane watches and governs everything.</p>
+    </div>
+  </div>
+
+  <div class="sec-head" style="margin-top:56px">
+    <span class="eyebrow">01 · What Foundry is</span>
+    <h2>One platform, one management plane</h2>
+    <p class="lede">Foundry unifies agents, models and tools under a single management grouping with enterprise capabilities built in: tracing, monitoring, evaluations and customizable enterprise setup. Role-based access, networking and policy are managed in one place under one Azure resource provider namespace.</p>
+  </div>
+
+  <div class="grid g3 auto">
+    <div class="mini" style="--c:var(--blue)"><div class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.5"/><path d="M5 20c1-4 4-6 7-6s6 2 7 6"/></svg></div><b>Agents</b><span>Declarative <b>prompt agents</b> (including voice), <b>workflows</b>, and <b>hosted agents</b> that run your own code in a managed runtime.</span></div>
+    <div class="mini" style="--c:var(--violet)"><div class="ic"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M9 9h6v6H9z"/></svg></div><b>Models</b><span>More than 10,000 models from Microsoft, OpenAI, Anthropic, Meta and others, deployed with the billing and residency option you choose.</span></div>
+    <div class="mini" style="--c:var(--cyan)"><div class="ic"><svg viewBox="0 0 24 24"><path d="M14 6l4 4-9 9H5v-4z"/><path d="M13 7l4 4"/></svg></div><b>Tools &amp; knowledge</b><span>A <b>Toolbox</b> packages tools behind one MCP endpoint; <b>Foundry IQ</b> and <b>memory</b> ground agents in your content and context.</span></div>
+    <div class="mini" style="--c:var(--green)"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 12h4l3-7 4 14 3-7h4"/></svg></div><b>Observability</b><span>Trace and monitor agents and models, with dashboards for tokens, latency, success rate and evaluation scores.</span></div>
+    <div class="mini" style="--c:var(--rose)"><div class="ic"><svg viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.4 8-8 9-4.6-1-8-4-8-9V6z"/></svg></div><b>Guardrails</b><span>Content safety controls applied at four intervention points on models and agents.</span></div>
+    <div class="mini" style="--c:var(--amber)"><div class="ic"><svg viewBox="0 0 24 24"><path d="M3 10l9-6 9 6M5 10v8M10 10v8M14 10v8M19 10v8M3 20h18"/></svg></div><b>Governance</b><span>Control plane, Entra identity, Azure Policy, Defender, Purview and an AI Gateway for token limits.</span></div>
+  </div>
+
+  <h3>Choose how much you want to own</h3>
+  <p>Most work on Foundry centers on an <b>agent</b>: a model paired with instructions and tools that can reason over a request and take action. The main decision is how much of the runtime you want to control. You can start declarative and move to code later.</p>
+  <div class="spectrum">
+    <div class="s1"><b>Prompt agent</b><span>Instructions + model + tools, defined in the portal or SDK. Foundry hosts and runs it. Nothing to deploy.</span></div>
+    <div class="s2"><b>Workflow agent <span class="tag prev">Preview</span></b><span>Orchestrates several agents and steps when one task spans more than one agent.</span></div>
+    <div class="s3"><b>Hosted agent</b><span>Your code and framework (Agent Framework, LangGraph, Semantic Kernel, custom) packaged as a container. Foundry gives it an endpoint, identity, scaling and observability.</span></div>
+  </div>
+
+  <div class="callout"><div><b>Not building an agent yet?</b> If you only need to send prompts to a model with no tools or orchestration, start with a single model call. Add an agent later only if you need tools or orchestration.</div></div>
+
+  <h3>Product and capability map</h3>
+  <div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>Capability</th><th>What it is</th><th>Reach for it when</th></tr></thead>
+    <tbody>
+      <tr><td><b>Foundry portal</b></td><td>Web experience for models, agents, evaluations and resources.</td><td>You want to explore and prototype without code.</td></tr>
+      <tr><td><b>Prompt agents</b></td><td>Declarative agents: instructions, a model and tools.</td><td>You want an agent with no runtime to manage.</td></tr>
+      <tr><td><b>Hosted agents</b></td><td>Your own agent code or framework, run by Foundry.</td><td>You need full control of logic and dependencies.</td></tr>
+      <tr><td><b>Foundry Models</b></td><td>Catalog of models from Microsoft, OpenAI, Anthropic, Meta and others.</td><td>You are choosing and deploying the model behind an app or agent.</td></tr>
+      <tr><td><b>Fine-tuning</b></td><td>Customize a model on your data.</td><td>Prompting and retrieval cannot reach the quality you need.</td></tr>
+      <tr><td><b>Toolbox</b></td><td>One managed endpoint that packages the tools an agent can call.</td><td>You want to give agents actions and govern tools centrally.</td></tr>
+      <tr><td><b>Foundry IQ</b></td><td>Agentic retrieval over a knowledge base.</td><td>You want answers grounded in your content.</td></tr>
+      <tr><td><b>Memory</b> <span class="tag prev">Preview</span></td><td>Persistent agent recall across sessions.</td><td>An agent must remember prior turns or user context.</td></tr>
+      <tr><td><b>Evaluations / AI red teaming</b></td><td>Scoring and automated adversarial scans.</td><td>You need to measure quality and probe for unsafe behavior.</td></tr>
+      <tr><td><b>Guardrails and controls</b></td><td>Content filters and safety controls for models and agents.</td><td>You want to enforce safety at run time.</td></tr>
+      <tr><td><b>Foundry control plane</b> <span class="tag prev">Preview</span></td><td>Governance for agents, models and tools across your estate.</td><td>You manage many projects and need policy and oversight.</td></tr>
+    </tbody></table></div>
+
+  <div class="callout warn"><div><b>Naming you may still see.</b> The platform evolved from Azure AI Studio to Azure AI Foundry to <b>Microsoft Foundry</b>. Azure AI Services became <b>Foundry Tools</b>. The Azure resource type is still <code>Microsoft.CognitiveServices/accounts</code>. Hub-based projects live in the Foundry (classic) portal; new investment is focused on Foundry projects in the new portal (use the <b>New Foundry</b> toggle).</div></div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:what-is-foundry|What is Microsoft Foundry?}}
+    {{doc:concepts/capabilities|Product and capability map}}
+    {{doc:concepts/capability-reference|Capability reference}}
+    {{doc:concepts/architecture|Service architecture}}
+    {{doc:how-to/navigate-from-classic|Migrate from the classic portal}}
+  </div>
+</section>

@@ -1,0 +1,153 @@
+<section class="sec" id="cost" data-nav="Cost, tokens & PTUs" data-group="Cost" data-c="amber">
+  <div class="sec-head">
+    <span class="eyebrow">14 · Know what you pay for</span>
+    <h2>Cost options, tokens and provisioned throughput (PTUs)</h2>
+    <p class="lede">Foundry has no single price. It is a set of optional Azure services, so you pay for what you use: model tokens or reserved capacity, hosted agent runtime, search, storage, monitoring and more. This section explains the levers and gives you a calculator.</p>
+  </div>
+
+  <div class="callout"><div><b>Foundry has no page of its own in the Azure pricing calculator</b> because it is composed of several optional services. Add each service you use (for example Azure AI Search, Speech or Language) and compare your estimate with Cost Management meters after a small test.</div></div>
+
+  <h3>Where the money goes</h3>
+  <div class="grid g4">
+    <div class="mini"><b>Model inference</b><span>Per token for standard, priority, flex and batch; per PTU per hour for provisioned.</span></div>
+    <div class="mini"><b>Fine-tuning</b><span>Training (per token or hour), <b>hosting per hour even when idle</b>, and inference per 1,000 tokens.</span></div>
+    <div class="mini"><b>Hosted agents</b><span>CPU and memory during active sessions.</span></div>
+    <div class="mini"><b>Partner models</b><span>Marketplace; Claude is billed in CCU (next section).</span></div>
+    <div class="mini"><b>Knowledge and storage</b><span>Azure AI Search, Storage and Cosmos DB, especially with standard agent setup.</span></div>
+    <div class="mini"><b>Safety and tools</b><span>Content Safety and Foundry Tools such as Speech, Vision and Language.</span></div>
+    <div class="mini"><b>Observability</b><span>Application Insights and Log Analytics follow their own retention and billing.</span></div>
+    <div class="mini"><b>AI Gateway</b><span>The Azure API Management instance behind it.</span></div>
+  </div>
+
+  <h3>Tokens: the unit of everything</h3>
+  <p>Language and vision models break input into <b>tokens</b>. Text, image and audio workloads can all be metered in tokens, and the billing unit and rate vary by model, deployment type and meter. Quotas are expressed as <b>tokens per minute (TPM)</b> and <b>requests per minute (RPM)</b>.</p>
+  <div class="diagram">
+    <svg viewBox="0 0 1000 250" role="img" aria-label="A request's context budget shared by input, reasoning and output tokens">
+      <text x="10" y="24" class="t-m" font-size="12" letter-spacing="1.4">ONE REQUEST · CONTEXT WINDOW BUDGET</text>
+      <rect x="10" y="40" width="980" height="46" rx="12" fill="var(--code)" stroke="var(--line2)"/>
+      <rect x="14" y="44" width="120" height="38" rx="9" fill="var(--blue)"/><text x="74" y="68" text-anchor="middle" font-size="12" style="fill:#fff;font-weight:600">Instructions</text>
+      <rect x="138" y="44" width="110" height="38" rx="9" fill="var(--violet)"/><text x="193" y="68" text-anchor="middle" font-size="12" style="fill:#fff;font-weight:600">Tool defs</text>
+      <rect x="252" y="44" width="150" height="38" rx="9" fill="var(--cyan)"/><text x="327" y="68" text-anchor="middle" font-size="12" style="fill:#04222a;font-weight:600">History</text>
+      <rect x="406" y="44" width="170" height="38" rx="9" fill="var(--green)"/><text x="491" y="68" text-anchor="middle" font-size="12" style="fill:#04231a;font-weight:600">Retrieved context</text>
+      <rect x="580" y="44" width="90" height="38" rx="9" fill="var(--amber)"/><text x="625" y="68" text-anchor="middle" font-size="12" style="fill:#241800;font-weight:600">User</text>
+      <rect x="674" y="44" width="130" height="38" rx="9" fill="var(--rose)"><animate attributeName="width" values="130;150;130" dur="3s" repeatCount="indefinite"/></rect><text x="739" y="68" text-anchor="middle" font-size="12" style="fill:#fff;font-weight:600">Reasoning</text>
+      <rect x="808" y="44" width="178" height="38" rx="9" fill="color-mix(in srgb,var(--rose) 60%,var(--violet))"/><text x="897" y="68" text-anchor="middle" font-size="12" style="fill:#fff;font-weight:600">Output</text>
+      <path d="M14 100 L576 100" stroke="var(--blue)" stroke-width="2"/><text x="295" y="120" text-anchor="middle" font-size="12" class="t-m">input tokens (cached input is cheaper and does not use PTU capacity)</text>
+      <path d="M674 100 L986 100" stroke="var(--rose)" stroke-width="2"/><text x="830" y="120" text-anchor="middle" font-size="12" class="t-m">generated tokens</text>
+      <g transform="translate(10,150)"><rect class="box" x="0" y="0" width="300" height="80" rx="12"/><text x="14" y="24" font-size="13" style="font-weight:700">Input, reasoning and output share the budget</text><text class="t-m" x="14" y="44" font-size="12">More input leaves fewer tokens for generation.</text><text class="t-m" x="14" y="62" font-size="12">Max output tokens is a cap, not a reservation.</text></g>
+      <g transform="translate(330,150)"><rect class="box" x="0" y="0" width="320" height="80" rx="12"/><text x="14" y="24" font-size="13" style="font-weight:700">Short vs long context pricing</text><text class="t-m" x="14" y="44" font-size="12">Some models price by <i>input length</i> of the request,</text><text class="t-m" x="14" y="62" font-size="12">not by their maximum context window.</text></g>
+      <g transform="translate(670,150)"><rect class="box" x="0" y="0" width="320" height="80" rx="12"/><text x="14" y="24" font-size="13" style="font-weight:700">Quota and limits</text><text class="t-m" x="14" y="44" font-size="12">TPM and RPM per model, deployment and region.</text><text class="t-m" x="14" y="62" font-size="12">Exceeding them returns HTTP 429.</text></g>
+    </svg>
+  </div>
+
+  <h3>Estimate a month of tokens</h3>
+  <div class="card glow" id="tokenCalc">
+    <div class="callout warn" style="margin-top:0"><div><b>You supply the rates.</b> The numbers below are placeholders to show the math, not real prices. Enter the per-million-token rates for your model and deployment type from the Azure OpenAI pricing page (or your partner offer).</div></div>
+    <div class="calc">
+      <div class="grid g2">
+        <div class="field"><label for="tc-req">Requests per day</label><input id="tc-req" type="number" value="5000" min="0"></div>
+        <div class="field"><label for="tc-in">Input tokens per request</label><input id="tc-in" type="number" value="3000" min="0"></div>
+        <div class="field"><label for="tc-out">Output tokens per request</label><input id="tc-out" type="number" value="500" min="0"></div>
+        <div class="field"><label for="tc-cache">Share of input served from cache (%)</label><input id="tc-cache" type="number" value="30" min="0" max="100"></div>
+        <div class="field"><label for="tc-rin">Input rate ($ per 1M) · placeholder</label><input id="tc-rin" type="number" value="1" step="0.01" min="0"></div>
+        <div class="field"><label for="tc-rc">Cached input rate ($ per 1M) · placeholder</label><input id="tc-rc" type="number" value="0.25" step="0.01" min="0"></div>
+        <div class="field"><label for="tc-rout">Output rate ($ per 1M) · placeholder</label><input id="tc-rout" type="number" value="4" step="0.01" min="0"></div>
+      </div>
+      <div class="out">
+        <div class="row"><span>Tokens per month</span><b id="tc-tokens">0</b></div>
+        <div style="margin:8px 0 2px;color:var(--mute);font-size:13px">Estimated monthly cost (30 days)</div>
+        <div class="big" id="tc-total">$0</div>
+        <div class="bar"><i id="tc-bar-in" style="background:var(--blue)"></i><i id="tc-bar-c" style="background:var(--cyan)"></i><i id="tc-bar-out" style="background:var(--rose)"></i></div>
+        <div class="legend"><span><s style="background:var(--blue)"></s>input</span><span><s style="background:var(--cyan)"></s>cached input</span><span><s style="background:var(--rose)"></s>output</span></div>
+        <div class="row" style="margin-top:12px"><span>Cache hit +20 points saves</span><b id="tc-w1">$0</b></div>
+        <div class="row"><span>20% shorter output saves</span><b id="tc-w2">$0</b></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Compare the deployment options</h3>
+  <div class="tbl-wrap"><table class="tbl">
+    <thead><tr><th>Option</th><th>Billing</th><th>Latency SLA</th><th>Best for</th></tr></thead>
+    <tbody>
+      <tr><td><b>Standard</b> (Global, Data Zone, regional)</td><td>Pay per token</td><td>None</td><td>Development, test and production with variable or unpredictable traffic.</td></tr>
+      <tr><td><b>Priority processing</b></td><td>Pay per token at the priority rate</td><td>Defined target per model</td><td>Latency-sensitive production without a long commitment.</td></tr>
+      <tr><td><b>Provisioned</b> (PTU)</td><td>Per PTU per hour, or Azure Reservations</td><td>Defined target per model</td><td>Mission-critical, high-scale production needing guaranteed throughput.</td></tr>
+      <tr><td><b>Batch</b></td><td>Discounted batch rate (50%)</td><td>None; 24-hour turnaround</td><td>Bulk, asynchronous work.</td></tr>
+      <tr><td><b>Flex processing</b> <span class="tag prev">Preview</span></td><td>Discounted token rates</td><td>None</td><td>Delay-tolerant workloads.</td></tr>
+      <tr><td><b>Developer</b></td><td>Pay per token</td><td>None</td><td>Fine-tuned model evaluation only.</td></tr>
+    </tbody></table></div>
+
+  <h3>PTUs: reserved capacity</h3>
+  <p>A <b>provisioned throughput unit (PTU)</b> is a fixed amount of model processing capacity held exclusively for your deployment, whether or not requests are being made. That gives predictable throughput and latency, instead of the shared capacity (and variable throughput) of standard deployments.</p>
+  <div class="grid g3 auto">
+    <div class="mini"><b>Model-independent</b><span>The same PTU quota can deploy any supported model. You do not buy PTUs per model.</span></div>
+    <div class="mini"><b>Region-specific</b><span>Quota is per subscription, per region and per deployment type. East US quota does not carry to West Europe.</span></div>
+    <div class="mini"><b>Throughput varies by model</b><span>A heavier model needs more PTUs for the same TPM. Each model has a minimum PTU count.</span></div>
+  </div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>Quota vs capacity</button><button>Sizing</button><button>Billing &amp; reservations</button><button>Spillover</button><button>PTU or pay as you go?</button></div>
+    <div class="tabpanel">
+      <div class="grid g2">
+        <div class="card"><h4>Quota</h4><p>The maximum PTUs you may deploy per subscription, region and deployment type. A policy limit with <b>no cost</b>. Request more through the quota form (also on the Foundry quota page); approval can take several days.</p></div>
+        <div class="card"><h4>Capacity</h4><p>The PTUs actually available to deploy right now for a model version. <b>Having quota does not guarantee capacity</b>: if the region is short, creation fails. Check availability in the deployment experience or the model capacities API before you plan or buy a reservation.</p></div>
+      </div>
+    </div>
+    <div class="tabpanel">
+      <p>Three factors turn your traffic into a PTU count:</p>
+      <ol class="steps">
+        <li><b>Request shape</b><span>Requests per minute, average input tokens and average output tokens.</span></li>
+        <li><b>Output-to-input ratio</b><span>Output tokens need more capacity than input tokens. Each model has a ratio that expresses how many input tokens one output token is equivalent to.</span></li>
+        <li><b>Cache rate</b><span>The fraction of input served from prompt cache. <b>Cached tokens do not consume PTU capacity</b>, so a higher cache rate lowers the PTUs you need.</span></li>
+      </ol>
+      <p>The calculation normalizes these into one TPM figure and divides by the model's input-TPM-per-PTU value. Use the <b>capacity calculator</b> in the Foundry portal for a guided estimate.</p>
+    </div>
+    <div class="tabpanel">
+      <ul class="tight">
+        <li><b>Hourly billing</b> is flexible but not intended for steady production. A deployment that exists for 15 minutes is charged one quarter of the hourly rate.</li>
+        <li><b>Azure Reservations</b> give a discounted rate for a term commitment. Global reservations are not region-specific; Data Zone and Regional reservations are tied to the deployment's region.</li>
+        <li>If deployed PTUs exceed the reservation quantity, the <b>excess is billed at the hourly rate</b>.</li>
+        <li>Reservations can be canceled or exchanged, which might incur fees.</li>
+      </ul>
+    </div>
+    <div class="tabpanel">
+      <p><b>Spillover</b> routes overage from a fully used provisioned deployment to a standard deployment, instead of returning 429.</p>
+      <ul class="tight">
+        <li><b>Whole deployment:</b> set <code>spilloverDeploymentName</code> on the provisioned deployment to a standard deployment of the same model and version in the same resource.</li>
+        <li><b>Per request:</b> send the <code>x-ms-spillover-deployment</code> header. If spillover occurs, the response carries <code>x-ms-spillover-from-deployment</code>.</li>
+        <li>If both are set, the deployment property wins.</li>
+      </ul>
+    </div>
+    <div class="tabpanel">
+      <div class="grid g2">
+        <div class="card glow"><h4>Choose PTU when…</h4><ul class="tight"><li>Traffic is predictable and you can estimate RPM and token volumes.</li><li>Users or systems need consistent, low latency.</li><li>Volume is high enough that per-token billing gets expensive.</li><li>It is a real-time experience: chat, copilots or agents.</li></ul></div>
+        <div class="card"><h4>Stay on pay as you go when…</h4><ul class="tight"><li>You are developing, testing or low volume.</li><li>Traffic is highly variable and hard to size.</li><li>You can combine both: provisioned for the baseline plus spillover for bursts.</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <h3>Cost control checklist</h3>
+  <div class="grid g3 auto">
+    <div class="mini"><b>Right-size the model</b><span>Use <b>model router</b> in Cost mode, or the smallest model that passes your evaluation.</span></div>
+    <div class="mini"><b>Cache what repeats</b><span>Stable prefixes and prompt caching cut input cost; at the gateway, semantic caching can avoid whole calls.</span></div>
+    <div class="mini"><b>Trim tokens</b><span>Shorter instructions, fewer tool definitions (tool search), tighter retrieval, and output limits.</span></div>
+    <div class="mini"><b>Use batch and flex</b><span>Move anything that can wait off the real-time path.</span></div>
+    <div class="mini"><b>Cap with limits</b><span>Per-project TPM and token quotas through the AI Gateway.</span></div>
+    <div class="mini"><b>Measure by meter</b><span>Cost Management: group by resource then meter; budgets and alerts after one full billing cycle.</span></div>
+  </div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:concepts/manage-costs|Plan and manage costs}}
+    {{doc:foundry-models/concepts/deployment-types|Deployment types}}
+    {{doc:openai/concepts/provisioned-throughput|Provisioned throughput}}
+    {{doc:openai/how-to/provisioned-throughput-sizing|Determine PTU sizing}}
+    {{doc:openai/concepts/provisioned-throughput-billing|PTU billing and reservations}}
+    {{doc:openai/how-to/provisioned-get-started|Operate provisioned deployments}}
+    {{doc:openai/how-to/spillover-traffic-management|Provisioned spillover}}
+    {{doc:openai/how-to/batch|Batch}}
+    {{doc:openai/how-to/flex-processing|Flex processing}}
+    {{doc:openai/concepts/priority-processing|Priority processing}}
+    {{doc:fine-tuning/cost-management|Fine-tuning cost management}}
+    {{url:https://azure.microsoft.com/pricing/details/ai-foundry/|Foundry pricing}}
+  </div>
+</section>

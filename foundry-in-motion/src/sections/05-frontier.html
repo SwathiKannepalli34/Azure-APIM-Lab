@@ -1,0 +1,94 @@
+<section class="sec" id="frontier" data-nav="Frontier model access" data-group="Models" data-c="rose">
+  <div class="sec-head">
+    <span class="eyebrow">05 · Frontier models</span>
+    <h2>Frontier model access inside Foundry</h2>
+    <p class="lede">Frontier models arrive in Foundry from several providers and with different access paths: some are available to everyone on Global Standard, some need a Marketplace subscription, some need a registration request, and some are gated research previews.</p>
+  </div>
+
+  <div class="callout warn"><div><b>Names and availability change quickly.</b> The lineup below reflects the Microsoft Learn model pages read in October 2026. Treat it as a map of <i>families and access paths</i>, and confirm exact model IDs, regions and lifecycle on the linked pages before presenting.</div></div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>OpenAI</button><button>Anthropic Claude</button><button>Other providers</button><button>Microsoft MAI</button></div>
+
+    <div class="tabpanel">
+      <p>Azure OpenAI in Foundry models are <b>sold by Azure</b>. Model highlights listed in the docs include these series (newest first):</p>
+      <div class="grid g3 auto">
+        <div class="mini"><b>GPT-6.1 · GPT-6</b><span><code>gpt-6.1-sol</code>, <code>gpt-6-astra</code>, <code>gpt-6-luna</code>, <code>gpt-6-sol</code></span></div>
+        <div class="mini"><b>GPT-5.6 · GPT-5.5</b><span><code>gpt-5.6-sol</code>, <code>-terra</code>, <code>-luna</code>; <code>gpt-5.5</code></span></div>
+        <div class="mini"><b>GPT-5.4 and earlier 5.x</b><span>5.4 (<code>mini</code>, <code>nano</code>, <code>pro</code>), 5.3 and 5.2 <code>codex</code>, 5.1, and the original GPT-5 series</span></div>
+        <div class="mini"><b>Chat-latest <span class="tag prev">Preview</span></b><span><code>gpt-chat-latest</code> with dated preview versions</span></div>
+        <div class="mini"><b>Open-weight and others</b><span><code>gpt-oss</code>, GPT-4.1, o-series reasoning, GPT-4o, embeddings, image, video (<code>sora-2</code>) and audio</span></div>
+        <div class="mini"><b>Limited access</b><span>Some models (for example <code>computer-use-preview</code>) require a registration application and eligibility review before you can deploy.</span></div>
+      </div>
+    </div>
+
+    <div class="tabpanel">
+      <p>Claude is offered in <b>two hosting versions</b>. Both are sold and operated by Anthropic, purchased through <b>Azure Marketplace</b>, billed in <b>CCU</b> (see the cost sections), and supported through Microsoft Support.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th></th><th>Hosted on Azure</th><th>Hosted on Anthropic infrastructure</th></tr></thead>
+        <tbody>
+          <tr><td><b>Where it runs</b></td><td>Azure infrastructure end to end (all GA)</td><td>Anthropic infrastructure, outside Azure</td></tr>
+          <tr><td><b>Deployment types</b></td><td>Global Standard and Data Zone Standard (US)</td><td>Global Standard only</td></tr>
+          <tr><td><b>Data residency</b></td><td>At rest in your Azure geography; processing scoped to global or data zone</td><td>May be processed outside the selected Azure region</td></tr>
+          <tr><td><b>APIs</b></td><td>Messages, token counting</td><td>Adds <code>/files</code> and <code>/skills</code> and more capabilities</td></tr>
+          <tr><td><b>Models</b></td><td>Opus 5.5 (and Fast), Opus 5, Opus 4.8, Sonnet 5 and 5.5, Haiku 5.5 and 4.5</td><td>Those plus <b>Fable</b> (preview) and <b>Mythos</b> (gated research preview) and older versions</td></tr>
+        </tbody></table></div>
+      <ul class="tight">
+        <li>Current Claude models list a <b>1M token context window</b> and up to <b>128K output</b>, with <b>adaptive thinking</b> and an <b>effort</b> parameter.</li>
+        <li><b>Gated research preview</b> models (Mythos) use Microsoft Entra ID authentication only.</li>
+        <li>Foundry does <b>not</b> apply built-in content filtering to Claude at deployment time. Configure Azure AI Content Safety during inference.</li>
+      </ul>
+    </div>
+
+    <div class="tabpanel">
+      <p>Other collections you can reach from the catalog (per the models-sold-by-Azure and partner pages):</p>
+      <div class="grid g3 auto">
+        <div class="mini"><b>xAI Grok</b><span>Registration is required for access to <code>grok-4</code> and <code>grok-code-fast-1</code>.</span></div>
+        <div class="mini"><b>DeepSeek · Meta · Mistral AI · Cohere</b><span>Available as collections; check each model card for deployment type and region.</span></div>
+        <div class="mini"><b>Black Forest Labs</b><span>Image generation models with their own how-to.</span></div>
+        <div class="mini"><b>Hugging Face · Fireworks</b><span>Open models and custom model import paths.</span></div>
+        <div class="mini"><b>Healthcare AI models</b><span>Specialized medical imaging and related models.</span></div>
+        <div class="mini"><b>Partner terms</b><span>Partner models are Non-Microsoft Products governed by the provider's terms. Review data handling before you deploy.</span></div>
+      </div>
+    </div>
+
+    <div class="tabpanel">
+      <p>Microsoft's own model families in Foundry include <b>MAI</b> models (MAI-Image, MAI-Thinking-1, MAI-Voice, MAI-Transcribe), <b>Phi</b> models and healthcare AI models. See each model's page for deployment options and regions.</p>
+    </div>
+  </div>
+
+  <h3>The access ladder</h3>
+  <p>Not every model needs every step. Work down this list and stop when the model is deployable:</p>
+  <div class="diagram">
+    <svg viewBox="0 0 1000 250" role="img" aria-label="Steps: discover, subscribe, register, quota, deploy, call">
+      <g id="ladder">
+        <g><rect class="box hi" x="10" y="70" width="140" height="110" rx="16"/><circle cx="40" cy="96" r="14" fill="var(--blue)"/><text x="40" y="101" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:700">1</text><text x="80" y="102" font-size="14" style="font-weight:700">Discover</text><text class="t-m" x="24" y="128" font-size="12">Catalog, filters,</text><text class="t-m" x="24" y="145" font-size="12">benchmarks</text></g>
+        <g><rect class="box" x="175" y="70" width="140" height="110" rx="16"/><circle cx="205" cy="96" r="14" fill="var(--violet)"/><text x="205" y="101" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:700">2</text><text x="228" y="102" font-size="14" style="font-weight:700">Subscribe</text><text class="t-m" x="189" y="128" font-size="12">Marketplace offer</text><text class="t-m" x="189" y="145" font-size="12">for partner models</text></g>
+        <g><rect class="box" x="340" y="70" width="140" height="110" rx="16"/><circle cx="370" cy="96" r="14" fill="var(--rose)"/><text x="370" y="101" text-anchor="middle" font-size="13" style="fill:#fff;font-weight:700">3</text><text x="393" y="102" font-size="14" style="font-weight:700">Register</text><text class="t-m" x="354" y="128" font-size="12">Limited-access</text><text class="t-m" x="354" y="145" font-size="12">models only</text></g>
+        <g><rect class="box" x="505" y="70" width="140" height="110" rx="16"/><circle cx="535" cy="96" r="14" fill="var(--amber)"/><text x="535" y="101" text-anchor="middle" font-size="13" style="fill:#241800;font-weight:700">4</text><text x="558" y="102" font-size="14" style="font-weight:700">Quota</text><text class="t-m" x="519" y="128" font-size="12">Check, or request</text><text class="t-m" x="519" y="145" font-size="12">more (takes days)</text></g>
+        <g><rect class="box" x="670" y="70" width="140" height="110" rx="16"/><circle cx="700" cy="96" r="14" fill="var(--green)"/><text x="700" y="101" text-anchor="middle" font-size="13" style="fill:#04231a;font-weight:700">5</text><text x="723" y="102" font-size="14" style="font-weight:700">Deploy</text><text class="t-m" x="684" y="128" font-size="12">Pick type, region,</text><text class="t-m" x="684" y="145" font-size="12">guardrail</text></g>
+        <g><rect class="box" x="835" y="70" width="140" height="110" rx="16"/><circle cx="865" cy="96" r="14" fill="var(--cyan)"/><text x="865" y="101" text-anchor="middle" font-size="13" style="fill:#04222a;font-weight:700">6</text><text x="888" y="102" font-size="14" style="font-weight:700">Call</text><text class="t-m" x="849" y="128" font-size="12">Entra ID, project</text><text class="t-m" x="849" y="145" font-size="12">endpoint</text></g>
+      </g>
+      <path class="flow" d="M150 125 L175 125"/><path class="flow v" d="M315 125 L340 125"/><path class="flow r" d="M480 125 L505 125"/><path class="flow a" d="M645 125 L670 125"/><path class="flow g" d="M810 125 L835 125"/>
+      <text class="t-f" x="500" y="225" text-anchor="middle" font-size="12">Models sold by Azure usually start at step 4. Partner models start at step 2.</text>
+    </svg>
+  </div>
+
+  <div class="grid g2">
+    <div class="card"><h4>Subscribing to partner models</h4><p>You need Azure Marketplace permissions such as <code>Microsoft.MarketplaceOrdering/agreements/offers/plans/sign/action</code> and <code>Microsoft.SaaS/resources/write</code> to subscribe. Many organizations give this to a small group, so plan for it early.</p></div>
+    <div class="card"><h4>Quota is per subscription and model</h4><p>Claude quota is managed at the subscription level: all Global Standard deployments of one model share a single pool across regions. Request more through the quota form (also on the Foundry quota page); approvals can take several days.</p></div>
+  </div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:foundry-models/concepts/models-sold-directly-by-azure|Models sold by Azure}}
+    {{doc:foundry-models/concepts/models-from-partners|Partner and community models}}
+    {{doc:foundry-models/concepts/claude-models|Claude models in Foundry}}
+    {{doc:foundry-models/concepts/claude-models-hosting-comparison|Compare Claude hosting options}}
+    {{doc:foundry-models/how-to/use-foundry-models-claude|Deploy and use Claude}}
+    {{doc:foundry-models/how-to/use-foundry-models-grok|Grok models}}
+    {{doc:foundry-models/how-to/use-foundry-models-flux|Black Forest Labs}}
+    {{doc:how-to/quota|Manage quotas}}
+    {{doc:foundry-models/quotas-limits|Models quotas and limits}}
+    {{doc:openai/concepts/model-retirements|Lifecycle and retirement}}
+  </div>
+</section>

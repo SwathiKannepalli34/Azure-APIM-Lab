@@ -1,0 +1,65 @@
+<section class="sec" id="publish" data-nav="Publish to Copilot & Teams" data-group="Agents" data-c="rose">
+  <div class="sec-head">
+    <span class="eyebrow">12 · Meet users where they work</span>
+    <h2>Publish agents to Microsoft Copilot and Teams</h2>
+    <p class="lede">You publish the agent's <b>stable endpoint</b>, so end users always talk to one consistent agent while you roll out new versions behind it. Foundry builds the Teams app package and submits it for you.</p>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 320" role="img" aria-label="Publish flow from a tested agent to Copilot and Teams">
+      <rect class="box" x="10" y="110" width="150" height="90" rx="14"/><text x="85" y="148" text-anchor="middle" font-size="14" style="font-weight:700">Tested agent</text><text class="t-f" x="85" y="170" text-anchor="middle" font-size="11">active version chosen</text>
+      <rect class="box hi" x="210" y="40" width="270" height="240" rx="18"/><text x="345" y="68" text-anchor="middle" font-size="14" style="font-weight:700">Foundry does for you</text>
+      <text class="t-m" x="228" y="98" font-size="12.5">1 · validates name, description, version</text><text class="t-m" x="228" y="126" font-size="12.5">2 · compiles a Teams app manifest (.zip)</text><text class="t-m" x="228" y="154" font-size="12.5">3 · submits to the Copilot and Teams</text><text class="t-m" x="245" y="172" font-size="12.5">agent catalogs</text><text class="t-m" x="228" y="200" font-size="12.5">4 · enables the Activity protocol</text><text class="t-m" x="228" y="228" font-size="12.5">5 · sets an authorization scheme</text><text class="t-m" x="228" y="256" font-size="12.5">   (creates an Azure Bot Service resource)</text>
+      <rect class="box" x="560" y="40" width="200" height="100" rx="14"/><text x="660" y="70" text-anchor="middle" font-size="14" style="font-weight:700">Just you</text><text class="t-f" x="660" y="92" text-anchor="middle" font-size="11">BotServiceRbac</text><text class="t-f" x="660" y="110" text-anchor="middle" font-size="11">no admin approval</text><text class="t-f" x="660" y="126" text-anchor="middle" font-size="11">appears only for you</text>
+      <rect class="box hi" x="560" y="180" width="200" height="100" rx="14"/><text x="660" y="210" text-anchor="middle" font-size="14" style="font-weight:700">People in your org</text><text class="t-f" x="660" y="232" text-anchor="middle" font-size="11">BotServiceTenant</text><text class="t-f" x="660" y="250" text-anchor="middle" font-size="11">admin approval needed</text><text class="t-f" x="660" y="266" text-anchor="middle" font-size="11">in M365 admin center</text>
+      <rect class="box" x="830" y="110" width="150" height="90" rx="14"/><text x="905" y="144" text-anchor="middle" font-size="14" style="font-weight:700">Users</text><text class="t-f" x="905" y="166" text-anchor="middle" font-size="11">Microsoft Copilot</text><text class="t-f" x="905" y="182" text-anchor="middle" font-size="11">and Teams</text>
+      <path class="flow" d="M160 155 L210 155"/><path class="flow b" d="M480 120 C520 100 530 90 560 90"/><path class="flow v" d="M480 190 C520 210 530 230 560 230"/><path class="flow g" d="M760 90 C800 100 810 130 830 140"/><path class="flow g" d="M760 230 C800 220 810 180 830 170"/>
+    </svg>
+  </div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>Steps</button><button>Prerequisites</button><button>Who can see it</button><button>Private networks &amp; hosted agents</button></div>
+    <div class="tabpanel">
+      <ol class="steps">
+        <li><b>Test thoroughly in the portal</b><span>Confirm responses and every tool work as expected.</span></li>
+        <li><b>Select the active version</b><span>Details tab › Agent configuration › Active version › Edit, or from the Publish button. Choose <b>Always use latest</b> or pin a specific version (recommended for production).</span></li>
+        <li><b>Select Publish › Teams and Microsoft Copilot</b><span>An Azure Bot Service resource is created automatically, or shown read-only if one exists.</span></li>
+        <li><b>Complete the metadata</b><span>Name, a three-part publish version (major.minor.patch), short description, description and developer. Optionally add website, terms of use and privacy statement URLs (HTTPS).</span></li>
+        <li><b>Choose the scope</b><span>Just you, or people in your organization.</span></li>
+        <li><b>Get admin approval if you chose organization scope</b><span>After approval the agent appears for everyone in your tenant under <b>Built by your org</b>.</span></li>
+      </ol>
+    </div>
+    <div class="tabpanel">
+      <ul class="tight">
+        <li><b>Foundry User</b> role on the project to create, manage and publish agents.</li>
+        <li><b>Azure Bot Service Contributor</b> (or Contributor or Owner) on the resource group, to create the bot and configure its channels. Foundry roles do not grant these permissions.</li>
+        <li>Register the provider: <code>az provider register --namespace Microsoft.BotService</code>.</li>
+        <li>An agent version you tested and want to publish.</li>
+      </ul>
+      <div class="callout warn"><div>Microsoft 365 and Teams process and store some data about the published agent and its responses, under their own compliance and data-residency terms. Check that this fits your governance requirements before publishing.</div></div>
+    </div>
+    <div class="tabpanel">
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Scope</th><th>Authorization scheme</th><th>Approval</th><th>Visibility</th></tr></thead>
+        <tbody>
+          <tr><td><b>Just you</b> (portal) · <code>Shared</code> (REST)</td><td><code>BotServiceRbac</code></td><td>None</td><td>Only you; in a Teams chat, participants with the required Foundry permissions on the project can use it.</td></tr>
+          <tr><td><b>People in your organization</b> · <code>Tenant</code></td><td><code>BotServiceTenant</code></td><td>Admin, in the Microsoft 365 admin center</td><td>Everyone in the tenant can discover and use it.</td></tr>
+        </tbody></table></div>
+    </div>
+    <div class="tabpanel">
+      <ul class="tight">
+        <li><b>Projects that disable public network access</b> cannot publish from the portal. Use the REST API and enable the source-IP-filtered public Activity Protocol route with <code>enable_m365_public_endpoint</code>; requests must come from Azure Bot Service or Microsoft 365 source ranges and still satisfy authorization.</li>
+        <li><b>Hosted agents</b> built on the Responses protocol are bridged to the Activity protocol automatically for channel delivery. Interactive calls can use OAuth on-behalf-of flows; background calls use the agent's own Entra identity.</li>
+        <li>You can also publish an agent as an <b>autopilot</b> in Agent 365.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:agents/how-to/publish-copilot|Publish to Copilot and Teams}}
+    {{doc:agents/how-to/publish-copilot-virtual-network|Publish with a virtual network}}
+    {{doc:agents/how-to/agent-applications|Agent applications}}
+    {{doc:agents/how-to/configure-agent|Configure endpoint and settings}}
+    {{doc:agents/concepts/agent-365-integration|Microsoft Agent 365 integration}}
+  </div>
+</section>

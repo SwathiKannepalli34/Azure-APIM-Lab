@@ -1,0 +1,75 @@
+<section class="sec" id="iq" data-nav="Foundry IQ" data-group="Agents" data-c="violet">
+  <div class="sec-head">
+    <span class="eyebrow">08 · Knowledge layer</span>
+    <h2>Foundry IQ: a permission-aware knowledge base for agents</h2>
+    <p class="lede">Foundry IQ lets you create a configurable, multi-source <b>knowledge base</b> that gives agents grounded, permission-aware answers from your organization's data. Multiple agents can share the same knowledge base.</p>
+  </div>
+
+  <div class="callout warn"><div><b>GA vs preview.</b> Some Foundry IQ features are generally available while others remain in preview, depending on the Search Service REST API version you use. The Foundry and Azure portals provide preview access to all agentic retrieval features. Check the migration guidance on the Foundry IQ page.</div></div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 340" role="img" aria-label="Agentic retrieval pipeline">
+      <rect class="box" x="10" y="130" width="130" height="80" rx="14"/><text x="75" y="164" text-anchor="middle" font-size="14">Agent query</text><text class="t-f" x="75" y="184" text-anchor="middle" font-size="11">caller's Entra identity</text>
+      <rect class="box hi" x="190" y="100" width="180" height="140" rx="16"/><text x="280" y="130" text-anchor="middle" font-size="14" style="font-weight:700">Knowledge base</text><text class="t-m" x="280" y="154" text-anchor="middle" font-size="12">1 · LLM plans the query</text><text class="t-m" x="280" y="174" text-anchor="middle" font-size="12">2 · splits into subqueries</text><text class="t-m" x="280" y="194" text-anchor="middle" font-size="12">3 · picks sources</text><text class="t-m" x="280" y="214" text-anchor="middle" font-size="12">reasoning effort: min/low/med</text>
+      <g>
+        <rect class="box" x="430" y="20" width="150" height="46" rx="10"/><text x="505" y="48" text-anchor="middle" font-size="13">Azure Blob Storage</text>
+        <rect class="box" x="430" y="82" width="150" height="46" rx="10"/><text x="505" y="110" text-anchor="middle" font-size="13">SharePoint</text>
+        <rect class="box" x="430" y="144" width="150" height="46" rx="10"/><text x="505" y="172" text-anchor="middle" font-size="13">OneLake</text>
+        <rect class="box" x="430" y="206" width="150" height="46" rx="10"/><text x="505" y="234" text-anchor="middle" font-size="13">Indexed sources</text>
+        <rect class="box" x="430" y="268" width="150" height="46" rx="10"/><text x="505" y="296" text-anchor="middle" font-size="13">Public web</text>
+      </g>
+      <rect class="box" x="630" y="110" width="150" height="120" rx="14"/><text x="705" y="142" text-anchor="middle" font-size="14" style="font-weight:700">Merge</text><text class="t-m" x="705" y="166" text-anchor="middle" font-size="12">parallel search</text><text class="t-m" x="705" y="184" text-anchor="middle" font-size="12">semantic rerank</text><text class="t-m" x="705" y="202" text-anchor="middle" font-size="12">enforce ACLs</text>
+      <rect class="box" x="830" y="130" width="150" height="80" rx="14"/><text x="905" y="162" text-anchor="middle" font-size="14">Extractive data</text><text class="t-f" x="905" y="184" text-anchor="middle" font-size="11">with citations</text>
+      <path class="flow" d="M140 170 L190 170"/>
+      <path class="flow v" d="M370 140 C400 100 400 50 430 43"/><path class="flow v" d="M370 155 C400 130 400 110 430 105"/><path class="flow v" d="M370 170 L430 167"/><path class="flow v" d="M370 185 C400 200 400 225 430 229"/><path class="flow v" d="M370 200 C400 250 400 290 430 291"/>
+      <path class="flow g" d="M580 43 C610 60 610 110 630 130"/><path class="flow g" d="M580 105 C600 115 610 130 630 140"/><path class="flow g" d="M580 167 L630 170"/><path class="flow g" d="M580 229 C610 220 610 200 630 190"/><path class="flow g" d="M580 291 C620 270 610 220 630 205"/>
+      <path class="flow a" d="M780 170 L830 170"/>
+    </svg>
+    <p class="cap">Agentic retrieval decomposes a complex question into subqueries, runs them in parallel across sources, reranks semantically, and returns unified results that respect the caller's permissions.</p>
+  </div>
+
+  <div class="grid g3 auto">
+    <div class="mini"><b>Knowledge base</b><span>The top-level resource. Defines which knowledge sources to query and how retrieval behaves, including the retrieval <b>reasoning effort</b> (minimal, low or medium).</span></div>
+    <div class="mini"><b>Knowledge sources</b><span>Connections to indexed or remote content: Blob Storage, SharePoint, OneLake and the public web. A knowledge base references one or more.</span></div>
+    <div class="mini"><b>Agentic retrieval</b><span>Multi-query pipeline with an optional LLM for query planning; keyword, vector or hybrid queries across indexed and remote sources.</span></div>
+    <div class="mini"><b>Automated ingestion</b><span>Chunking, vector embeddings and metadata extraction for indexed sources, with scheduled indexer runs for incremental refresh.</span></div>
+    <div class="mini"><b>Permissions</b><span>Synchronizes ACLs for supported sources, honors <b>Microsoft Purview sensitivity labels</b>, and runs queries under the caller's <b>Microsoft Entra</b> identity.</span></div>
+    <div class="mini"><b>Citations</b><span>Returns extractive data with citations so agents reason over raw content and answers trace back to documents.</span></div>
+  </div>
+
+  <h3>Set it up</h3>
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>Portal</button><button>Programmatic</button><button>The three IQs</button></div>
+    <div class="tabpanel">
+      <ol class="steps">
+        <li><b>Open Build › Knowledge</b><span>Make sure <b>New Foundry</b> is on and select your project.</span></li>
+        <li><b>Create or connect a search service</b><span>It must support agentic retrieval. For a proof of concept use the free tier of Azure AI Search and the free allocation of tokens for agentic retrieval.</span></li>
+        <li><b>Create a knowledge base</b><span>Add one knowledge source at a time, then configure retrieval behavior.</span></li>
+        <li><b>Build › Agents: connect the knowledge base</b><span>Create or select an agent and connect it. Refine in the playground.</span></li>
+      </ol>
+      <div class="callout"><div>The playground is a simplified proof-of-concept path. When you move to code, configure managed identities and permissions to match your security requirements.</div></div>
+    </div>
+    <div class="tabpanel">
+      <p>Create knowledge sources, create a knowledge base that references them, connect an agent, then send messages and refine. You can use a knowledge base from <b>Foundry Agent Service</b>, <b>Microsoft Agent Framework</b> or any custom app through the knowledge base REST API or Azure AI Search SDK clients. A private agentic retrieval tutorial covers inbound and outbound private connectivity.</p>
+      <p>After you connect a knowledge base to an Agent Service agent you can also add that agent to <b>Microsoft Copilot Studio</b> <span class="tag prev">Preview</span>.</p>
+    </div>
+    <div class="tabpanel">
+      <div class="grid g3 auto">
+        <div class="mini"><b>Foundry IQ</b><span>Managed knowledge layer for enterprise data across Azure, SharePoint, OneLake and the web.</span></div>
+        <div class="mini"><b>Fabric IQ <span class="tag prev">Preview</span></b><span>Semantic layer for Microsoft Fabric: ontologies, semantic models, graphs and data agents over OneLake and Power BI.</span></div>
+        <div class="mini"><b>Work IQ <span class="tag prev">Preview</span></b><span>Contextual intelligence for Microsoft 365: signals from documents, meetings, chats and workflows.</span></div>
+      </div>
+      <p>Each is standalone, and you can use them together for broader organizational context.</p>
+    </div>
+  </div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:agents/concepts/what-is-foundry-iq|What is Foundry IQ?}}
+    {{doc:agents/how-to/foundry-iq-connect|Connect a knowledge base to agents}}
+    {{doc:agents/concepts/foundry-iq-faq|Foundry IQ FAQ}}
+    {{doc:agents/how-to/foundry-iq-tutorial-private-overview|Private agentic retrieval tutorial}}
+    {{doc:agents/how-to/tools/fabric-iq|Fabric IQ}}
+    {{doc:agents/how-to/tools/work-iq|Work IQ}}
+    {{doc:agents/quickstarts/quickstart-foundry-iq-hosted-agent|Foundry IQ with a hosted agent}}
+  </div>
+</section>

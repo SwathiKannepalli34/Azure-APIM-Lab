@@ -1,0 +1,116 @@
+<section class="sec" id="project" data-nav="Create a project" data-group="Foundations" data-c="cyan">
+  <div class="sec-head">
+    <span class="eyebrow">03 · Your first step</span>
+    <h2>Create a Foundry project</h2>
+    <p class="lede">A project organizes agents, evaluations and files. It lives on a <b>Foundry resource</b>, which the portal creates for you. One resource can hold many projects that share its networking, policy and gateway.</p>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 300" role="img" aria-label="Hierarchy from subscription to resource group to Foundry resource to projects">
+      <rect class="zone" x="10" y="10" width="980" height="280" rx="22"/><text x="30" y="36" class="t-m" font-size="12" letter-spacing="1.6">AZURE SUBSCRIPTION</text>
+      <rect class="zone" x="40" y="54" width="920" height="220" rx="18" style="stroke:var(--violet);fill:color-mix(in srgb,var(--violet) 6%,transparent)"/><text x="60" y="78" class="t-m" font-size="12" letter-spacing="1.6">RESOURCE GROUP</text>
+      <rect class="box hi" x="70" y="92" width="860" height="166" rx="16"/><text x="90" y="116" font-size="14" style="font-weight:700">Foundry resource</text><text class="t-f" x="90" y="134" font-size="12">kind: AIServices · custom subdomain · system-assigned identity · allowProjectManagement</text>
+      <g>
+        <rect class="box" x="90" y="150" width="190" height="90" rx="12"/><text x="185" y="176" text-anchor="middle" font-size="14">Project A</text><text class="t-f" x="185" y="196" text-anchor="middle" font-size="11">agents · evals · files</text><text class="t-f" x="185" y="214" text-anchor="middle" font-size="11">own endpoint &amp; limits</text>
+        <rect class="box" x="300" y="150" width="190" height="90" rx="12"/><text x="395" y="176" text-anchor="middle" font-size="14">Project B</text><text class="t-f" x="395" y="196" text-anchor="middle" font-size="11">agents · evals · files</text><text class="t-f" x="395" y="214" text-anchor="middle" font-size="11">own endpoint &amp; limits</text>
+        <rect class="box" x="510" y="150" width="140" height="90" rx="12" style="stroke-dasharray:4 4"/><text x="580" y="200" text-anchor="middle" font-size="13" class="t-m">+ more projects</text>
+      </g>
+      <g>
+        <rect class="box" x="690" y="150" width="220" height="38" rx="10"/><text x="800" y="174" text-anchor="middle" font-size="13">Model deployments (shared)</text>
+        <rect class="box" x="690" y="200" width="220" height="38" rx="10"/><text x="800" y="224" text-anchor="middle" font-size="13">Networking · policy · AI Gateway</text>
+      </g>
+      <path class="flow" d="M280 195 L300 195"/><path class="flow b" d="M650 195 L690 170"/><path class="flow v" d="M650 200 L690 219"/>
+    </svg>
+    <p class="cap">Many projects, one resource: shared models, networking and governance, separate agents and project-level access.</p>
+  </div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>Portal</button><button>Python SDK</button><button>CLI, Bicep, Terraform</button><button>Team access</button><button>Bring your own resources</button></div>
+
+    <div class="tabpanel">
+      <ol class="steps">
+        <li><b>Sign in to Microsoft Foundry</b><span>Make sure the <b>New Foundry</b> toggle is on. You need an Azure subscription and a role that can create a Foundry resource, such as <b>Foundry Account Owner</b> or <b>Foundry Owner</b> on the subscription or resource group.</span></li>
+        <li><b>Select the project name (upper left), then <i>Create new project</i></b><span>Give it a name and select <b>Create project</b>.</span></li>
+        <li><b>Optional: advanced options</b><span>Pick an existing resource group or create a new one (recommended when starting, so you can manage and delete everything together), and choose the <b>Location</b> where project resources are hosted.</span></li>
+        <li><b>Wait for provisioning, then copy the project endpoint</b><span>The welcome screen shows it in the form <code>https://&lt;resource&gt;.services.ai.azure.com/api/projects/&lt;project&gt;</code>. Deploy a model next (Discover › Model catalog › Deploy).</span></li>
+      </ol>
+      <div class="callout good"><div>The portal path uses basic defaults. If your organization needs custom names, security controls or cost tags that satisfy Azure Policy, use the Azure portal or a template instead.</div></div>
+    </div>
+
+    <div class="tabpanel">
+      <p>Create the resource, then a default project. Requires <code>azure-identity</code> and <code>azure-mgmt-cognitiveservices&gt;=13.7.0</code> and an <code>az login</code> session.</p>
+      <div class="code" data-lang="python"><pre>from azure.identity import DefaultAzureCredential
+from azure.mgmt.cognitiveservices import CognitiveServicesManagementClient
+
+client = CognitiveServicesManagementClient(
+    credential=DefaultAzureCredential(),
+    subscription_id="&lt;subscription-id&gt;",
+    api_version="2025-04-01-preview",
+)
+
+# 1) Foundry resource
+client.accounts.begin_create(
+    resource_group_name="&lt;rg&gt;", account_name="&lt;foundry-resource&gt;",
+    account={
+        "location": "eastus", "kind": "AIServices", "sku": {"name": "S0"},
+        "identity": {"type": "SystemAssigned"},
+        "properties": {"allowProjectManagement": True,
+                       "customSubDomainName": "&lt;foundry-resource&gt;"},
+    },
+).result()
+
+# 2) Project on that resource
+client.projects.begin_create(
+    resource_group_name="&lt;rg&gt;", account_name="&lt;foundry-resource&gt;",
+    project_name="&lt;project&gt;",
+    project={"location": "eastus", "identity": {"type": "SystemAssigned"}, "properties": {}},
+).result()</pre></div>
+    </div>
+
+    <div class="tabpanel">
+      <p>The docs include an <b>Azure CLI</b> path (Azure CLI 2.80 or later, Contributor or Owner on the resource group) and template options for repeatable, policy-compliant setups:</p>
+      <ul class="tight">
+        <li>{{doc:how-to/create-projects|Create a project (portal, SDK, CLI)}}</li>
+        <li>{{doc:how-to/create-resource-template|Create resources using a Bicep template}}</li>
+        <li>{{doc:how-to/create-resource-terraform|Manage resources using Terraform}}</li>
+        <li>{{doc:how-to/upgrade-azure-openai|Upgrade an Azure OpenAI resource to a Foundry resource}} (keeps endpoint, keys and state)</li>
+      </ul>
+    </div>
+
+    <div class="tabpanel">
+      <p>Foundry roles separate control plane from data plane. Assign the least privilege that fits the job.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Role</th><th>Use it for</th></tr></thead>
+        <tbody>
+          <tr><td><b>Foundry User</b></td><td>Least-privilege role for developers building and testing agents; data actions on the project.</td></tr>
+          <tr><td><b>Foundry Project Manager</b></td><td>Manage projects, build, and conditionally assign Foundry User to others.</td></tr>
+          <tr><td><b>Foundry Account Owner</b></td><td>Full access to manage projects and resources; can conditionally assign Foundry User, ACR and monitoring roles.</td></tr>
+          <tr><td><b>Foundry Owner</b></td><td>Account Owner plus building with projects; highly privileged, self-serve.</td></tr>
+        </tbody></table></div>
+      <div class="callout warn"><div><b>Renamed roles.</b> Foundry User, Owner, Account Owner and Project Manager were previously <b>Azure AI User, Owner, Account Owner and Project Manager</b>. Role IDs and core permissions are unchanged, and you may still see the old names while the rename rolls out.</div></div>
+      <p>For a team, you need a role that can assign roles (such as <b>Owner</b>) plus the email addresses or Entra security group IDs of the members.</p>
+    </div>
+
+    <div class="tabpanel">
+      <p><b>Basic agent setup</b> uses Microsoft-managed resources. <b>Standard agent setup</b> stores agent state in your own single-tenant Azure resources, for full data sovereignty and project-level isolation:</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Bring your own</th><th>What it stores</th></tr></thead>
+        <tbody>
+          <tr><td>Azure Storage</td><td>Files uploaded by developers and end users</td></tr>
+          <tr><td>Azure AI Search</td><td>Vector stores created by agents</td></tr>
+          <tr><td>Azure Cosmos DB for NoSQL</td><td>Messages, conversation history and agent metadata (at least 3000 RU/s)</td></tr>
+          <tr><td>Azure Key Vault</td><td>Secrets management</td></tr>
+        </tbody></table></div>
+      <p>Pair it with network isolation (private link or managed virtual network) when you need to keep traffic off the public internet.</p>
+    </div>
+  </div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:how-to/create-projects|Create a project}}
+    {{doc:concepts/rbac-foundry|Role-based access control}}
+    {{doc:agents/environment-setup|Set up agent resources}}
+    {{doc:agents/concepts/standard-agent-setup|Standard agent setup}}
+    {{doc:agents/how-to/use-your-own-resources|Use your own Azure resources}}
+    {{doc:how-to/configure-private-link|Configure network isolation}}
+  </div>
+</section>

@@ -1,0 +1,97 @@
+<section class="sec" id="observe" data-nav="Operate & observe" data-group="Trust & operate" data-c="green">
+  <div class="sec-head">
+    <span class="eyebrow">16 · See what agents actually did</span>
+    <h2>Operate and observe: tracing, monitoring, alerts</h2>
+    <p class="lede">Tracing, monitoring and evaluation share one data model. Foundry captures inputs, outputs, tool usage, retries, latencies and token consumption for every run, so you can answer "where did this response come from?" and "which step added the latency?"</p>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 1000 340" role="img" aria-label="Observability loop: trace, monitor, evaluate, optimize, govern">
+      <circle class="ln" cx="500" cy="170" r="125" style="stroke-dasharray:3 7"/>
+      <g class="spin" style="animation-duration:26s"><circle cx="500" cy="45" r="8" fill="var(--green)"/></g>
+      <text x="500" y="165" text-anchor="middle" font-size="17" style="font-weight:700">Observability</text><text class="t-m" x="500" y="187" text-anchor="middle" font-size="12">one data model</text>
+      <g>
+        <rect class="box hi" x="395" y="10" width="210" height="56" rx="14"/><text x="500" y="35" text-anchor="middle" font-size="14" style="font-weight:700">Trace</text><text class="t-f" x="500" y="54" text-anchor="middle" font-size="11">OpenTelemetry → Application Insights</text>
+        <rect class="box" x="700" y="75" width="220" height="56" rx="14"/><text x="810" y="100" text-anchor="middle" font-size="14" style="font-weight:700">Monitor</text><text class="t-f" x="810" y="119" text-anchor="middle" font-size="11">tokens, latency, success rate</text>
+        <rect class="box" x="700" y="210" width="220" height="56" rx="14"/><text x="810" y="235" text-anchor="middle" font-size="14" style="font-weight:700">Evaluate</text><text class="t-f" x="810" y="254" text-anchor="middle" font-size="11">continuous evals, red-team scans</text>
+        <rect class="box" x="80" y="210" width="220" height="56" rx="14"/><text x="190" y="235" text-anchor="middle" font-size="14" style="font-weight:700">Optimize</text><text class="t-f" x="190" y="254" text-anchor="middle" font-size="11">traces → datasets → better agent</text>
+        <rect class="box" x="80" y="75" width="220" height="56" rx="14"/><text x="190" y="100" text-anchor="middle" font-size="14" style="font-weight:700">Alert and govern</text><text class="t-f" x="190" y="119" text-anchor="middle" font-size="11">anomalies, policy, compliance</text>
+      </g>
+      <path class="flow g" d="M605 38 C660 50 690 70 700 90"/><path class="flow g" d="M810 131 L810 210"/><path class="flow g" d="M700 238 C560 320 440 320 300 238"/><path class="flow g" d="M190 210 L190 131"/><path class="flow g" d="M300 90 C330 70 360 50 395 38"/>
+    </svg>
+  </div>
+
+  <div class="tabs">
+    <div class="tablist" role="tablist"><button>Tracing</button><button>Monitor dashboard</button><button>Alerts &amp; evaluation</button><button>Operate panes</button><button>Set it up</button></div>
+
+    <div class="tabpanel">
+      <p>Traces are built from <b>spans</b> (single operations, nestable) with <b>attributes</b>, following the <b>OpenTelemetry GenAI semantic conventions</b> (development status, may change). Microsoft and Cisco Outshift contribute conventions for multi-agent workflows, integrated in Foundry, Microsoft Agent Framework, LangChain and LangGraph.</p>
+      <div class="grid g3 auto">
+        <div class="mini"><b>What is captured</b><span>User inputs and agent outputs, tool calls and results, token consumption, duration and latency.</span></div>
+        <div class="mini"><b>Status</b><span>Tracing is GA for prompt and hosted agents. Workflow and external agents are in preview.</span></div>
+        <div class="mini"><b>Where it lives</b><span>Azure Monitor Application Insights; view in the Foundry portal (Operate › Tracing) or in Azure Monitor.</span></div>
+        <div class="mini"><b>Replay and annotate</b><span>Replay agent traces; annotate with human feedback; log end-user feedback.</span></div>
+        <div class="mini"><b>Traces to datasets</b><span>Convert traces into evaluation datasets to test against real behavior.</span></div>
+        <div class="mini"><b>Protect sensitive content</b><span>Restrict access to sensitive content in traces; Entra authentication for trace ingestion.</span></div>
+      </div>
+    </div>
+
+    <div class="tabpanel">
+      <p>Build › Agents › your agent › <b>Monitor</b> tab <span class="tag prev">Preview</span>. Summary cards on top, charts below, for the selected time range.</p>
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Metric</th><th>Read it as</th></tr></thead>
+        <tbody>
+          <tr><td><b>Token usage</b></td><td>High usage can mean verbose prompts or responses worth optimizing.</td></tr>
+          <tr><td><b>Latency</b></td><td>Above about 10 seconds can indicate model throttling, complex tool calls or network issues.</td></tr>
+          <tr><td><b>Run success rate</b></td><td>Below about 95% warrants investigating failed runs.</td></tr>
+          <tr><td><b>Evaluation metrics</b></td><td>Scores from evaluators on sampled outputs; interpretation varies by evaluator.</td></tr>
+          <tr><td><b>Red teaming results</b></td><td>Outcomes of scheduled scans; failed scans indicate risks to remediate.</td></tr>
+        </tbody></table></div>
+      <p>Data is stored in your connected Application Insights resource, so retention and billing follow its configuration. For log-based views you also need <b>Log Analytics Reader</b>.</p>
+    </div>
+
+    <div class="tabpanel">
+      <div class="grid g3 auto">
+        <div class="mini"><b>Recurring evaluations <span class="tag prev">Preview</span></b><span>Run evaluations on a schedule against benchmarks.</span></div>
+        <div class="mini"><b>Red team scans <span class="tag prev">Preview</span></b><span>Scheduled adversarial tests for data leakage and prohibited actions.</span></div>
+        <div class="mini"><b>Alerts <span class="tag prev">Preview</span></b><span>Latency, token usage, evaluation scores and red-team findings.</span></div>
+      </div>
+      <p>Assign the project's managed identity the <b>Foundry User</b> role so continuous evaluation rules can run. A <b>Notification Center</b> and <b>Insights</b> surface issues and suggested improvements, and the fleet-level Operate panes add cost and token anomaly tracking.</p>
+    </div>
+
+    <div class="tabpanel">
+      <div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th>Pane</th><th>Use it to</th></tr></thead>
+        <tbody>
+          <tr><td><b>Overview</b></td><td>See fleet health, cost trends, run completion rate and prevented behaviors; drill into anomalies.</td></tr>
+          <tr><td><b>Assets</b></td><td>Search every agent, model and tool across projects; sort by health score, cost, alerts and token use; open Evaluation or Monitoring; see recommendations; correlate logs with evaluation results.</td></tr>
+          <tr><td><b>Compliance</b></td><td>Define, apply and monitor guardrail policies (next sections).</td></tr>
+          <tr><td><b>Tracing</b></td><td>Inspect runs across projects.</td></tr>
+          <tr><td><b>Quota</b></td><td>See which deployments use how much quota; toggle <b>Show all</b> to check available regions and capacity before deploying.</td></tr>
+        </tbody></table></div>
+      <p>The control plane can also <b>register custom agents</b> from other platforms so you see Foundry, Microsoft and non-Microsoft agents in one fleet view.</p>
+    </div>
+
+    <div class="tabpanel">
+      <ol class="steps">
+        <li><b>Connect Application Insights to the project</b><span>Tracing and the Monitor dashboard read from it.</span></li>
+        <li><b>Grant access</b><span>Log Analytics Reader (and Privileged Monitoring Data Reader if tables are protected).</span></li>
+        <li><b>Instrument</b><span>Prompt and hosted agents emit traces by default; for your own code use OpenTelemetry with the Foundry SDK, or framework integrations.</span></li>
+        <li><b>Open Operate › Tracing and the agent's Monitor tab</b><span>Verify spans, tokens and latency.</span></li>
+        <li><b>Turn on continuous evaluation and alerts</b><span>Use the gear icon in Monitor settings.</span></li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="refs"><span>Learn more</span>
+    {{doc:concepts/observability|Observability overview}}
+    {{doc:observability/concepts/trace-agent-concept|Agent tracing overview}}
+    {{doc:observability/how-to/trace-agent-setup|Set up tracing}}
+    {{doc:observability/how-to/how-to-monitor-agents-dashboard|Agent Monitoring Dashboard}}
+    {{doc:observability/how-to/agent-insights|Insights in Foundry}}
+    {{doc:observability/how-to/traces-to-dataset|Traces to datasets}}
+    {{doc:control-plane/monitoring-across-fleet|Monitor fleet health}}
+    {{doc:control-plane/register-custom-agent|Register custom agents}}
+    {{doc:foundry-models/how-to/monitor-models|Monitor model deployments}}
+  </div>
+</section>
